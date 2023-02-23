@@ -102,6 +102,24 @@ def proto_to_header(proto: eth_pb2.Block):
     block.state_root = encode_hex(proto.state_root)
     return block
 
+def tx_to_proto(tx: Transaction):
+    proto = eth_pb2.Transaction()
+    proto.chainId = tx.chain_id
+    proto.to = bytes.fromhex(tx.to)
+    proto.hash = bytes.fromhex(tx.hash)
+    proto.nonce = tx.nonce
+    proto.value = tx.value.to_bytes(32, 'big')
+    proto.type = tx.type
+    proto.gas_price = tx.gas_price
+    proto.max_fee = tx.max_fee
+    proto.priority_fee = tx.priority_fee
+    proto.input = bytes.fromhex(tx.input)
+    proto.access_list = tx.access_list
+    proto.v = tx.v
+    proto.r = bytes.fromhex(tx.r)
+    proto.s = bytes.fromhex(tx.s)
+    return proto
+
 class Client:
     def __init__(self, api: str, key: str):
         self.api = api
@@ -120,3 +138,23 @@ class Client:
 
     def subscribe_new_headers(self):
         return map(lambda proto: proto_to_header(proto), self.stub.SubscribeNewHeaders(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata))
+    
+    def send_transaction(self, tx: Transaction):
+        res = self.stub.SendTransaction(tx_to_proto(tx), metadata=self.metadata)
+        
+        return res.hash, res.timestamp
+
+    def send_transaction_sequence(self, txs: list[Transaction]):
+        res = self.stub.SendTransactionSequence(txs, metadata=self.metadata)
+        
+        return map(lambda sequence_response: sequence_response.hash, res), res[0].timestamp
+
+    def send_raw_transaction(self, tx: bytes):
+        res = self.stub.SendRawTransaction(tx_to_proto(tx), metadata=self.metadata)
+        
+        return res.hash, res.timestamp
+
+    def send_raw_transaction_sequence(self, txs: list[bytes]):
+        res = self.stub.SendRawTransactionSequence(txs, metadata=self.metadata)
+        
+        return map(lambda sequence_response: sequence_response.hash, res), res[0].timestamp 
