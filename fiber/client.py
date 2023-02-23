@@ -47,6 +47,45 @@ def proto_to_tx(proto: eth_pb2.Transaction):
     tx.s = encode_hex(proto.s)
     return tx
 
+class Block:
+    hash: str
+    number: int
+    parent_hash: str
+    timestamp: int
+    producer: str
+    base_fee_per_gas: int
+    extra_data: str
+    fee_recipient: str
+    gas_limit: int
+    gas_used: int
+    logs_bloom: bytes
+    prev_randao: bytes
+    receipt_root: bytes
+    state_root: bytes
+    transactions: list[Transaction]
+
+    def __repr__(self):
+        return str(self.__dict__)
+    
+def proto_to_block(proto: eth_pb2.Block):
+    block = Block()
+    block.hash = encode_hex(proto.hash)
+    block.number = proto.number
+    block.parent_hash = encode_hex(proto.parent_hash)
+    block.timestamp = proto.timestamp
+    block.producer = encode_hex(proto.producer)
+    block.base_fee_per_gas = proto.base_fee_per_gas
+    block.extra_data = encode_hex(proto.extra_data)
+    block.fee_recipient = encode_hex(proto.fee_recipient)
+    block.gas_limit = proto.gas_limit
+    block.gas_used = proto.gas_used
+    block.logs_bloom = proto.logs_bloom
+    block.prev_randao = proto.prev_randao
+    block.receipt_root = proto.receipt_root
+    block.state_root = proto.state_root
+    block.transactions = list(map(lambda proto: proto_to_tx(proto), proto.transactions))
+    return block
+
 class Client:
     def __init__(self, api: str, key: str):
         self.api = api
@@ -61,4 +100,4 @@ class Client:
         return map(lambda proto: proto_to_tx(proto), self.stub.SubscribeNewTxs(api_pb2.TxFilter(), metadata=self.metadata))
 
     def subscribe_new_blocks(self):
-        return self.stub.SubscribeNewBlocks(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata)
+        return map(lambda proto: proto_to_block(proto), self.stub.SubscribeNewBlocks(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata))
