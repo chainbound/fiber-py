@@ -1,6 +1,7 @@
 from fiber import eth_pb2
 from fiber import api_pb2_grpc
 from fiber import api_pb2
+from fiber.filter import filter
 import grpc
 
 from eth_typing import Address
@@ -57,8 +58,8 @@ class Client:
         channel = grpc.insecure_channel(self.api)
         self.stub = api_pb2_grpc.APIStub(channel)
     
-    def subscribe_new_txs(self):
-        return map(lambda proto: proto_to_tx(proto), self.stub.SubscribeNewTxs(api_pb2.TxFilter(), metadata=self.metadata))
+    def subscribe_new_txs(self, fil: filter.Filter = None):
+        return map(lambda proto: proto_to_tx(proto), self.stub.SubscribeNewTxs(api_pb2.TxFilter(bytes(fil.encode())), metadata=self.metadata))
 
     def subscribe_new_blocks(self):
         return self.stub.SubscribeNewBlocks(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata)
