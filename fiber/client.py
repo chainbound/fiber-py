@@ -5,6 +5,7 @@ import grpc
 
 from eth_typing import Address
 from eth_utils import encode_hex, big_endian_to_int
+from typing import Any
 
 class Transaction:
     to: str
@@ -15,19 +16,21 @@ class Transaction:
     sender: str
     type: int
     gas_price: int
+    input: str
     max_fee: int
     priority_fee: int
     v: int
     r: str
     s: str
-    chainId: int
+    access_list: Any
+    chain_id: int
 
     def __repr__(self):
         return str(self.__dict__)
 
 def proto_to_tx(proto: eth_pb2.Transaction):
     tx = Transaction()
-    tx.chainId = proto.chainId
+    tx.chain_id = proto.chainId
     tx.to = encode_hex(proto.to)
     tx.hash = encode_hex(proto.hash)
     tx.nonce = proto.nonce
@@ -37,6 +40,8 @@ def proto_to_tx(proto: eth_pb2.Transaction):
     tx.gas_price = proto.gas_price
     tx.max_fee = proto.max_fee
     tx.priority_fee = proto.priority_fee
+    tx.input = encode_hex(proto.input)
+    tx.access_list = proto.access_list
     tx.v = proto.v
     tx.r = encode_hex(proto.r)
     tx.s = encode_hex(proto.s)
