@@ -1,0 +1,59 @@
+from fiber import eth_pb2
+from fiber import api_pb2_grpc
+from fiber import api_pb2
+import grpc
+
+from eth_typing import Address
+from eth_utils import encode_hex, big_endian_to_int
+
+class Transaction:
+    to: str
+    gas: int
+    hash: str
+    nonce: int
+    value: int
+    sender: str
+    type: int
+    gas_price: int
+    max_fee: int
+    priority_fee: int
+    v: int
+    r: str
+    s: str
+    chainId: int
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+def proto_to_tx(proto: eth_pb2.Transaction):
+    tx = Transaction()
+    tx.chainId = proto.chainId
+    tx.to = encode_hex(proto.to)
+    tx.hash = encode_hex(proto.hash)
+    tx.nonce = proto.nonce
+    tx.value = big_endian_to_int(proto.value)
+    tx.sender = encode_hex(getattr(proto, "from"))
+    tx.type = proto.type
+    tx.gas_price = proto.gas_price
+    tx.max_fee = proto.max_fee
+    tx.priority_fee = proto.priority_fee
+    tx.v = proto.v
+    tx.r = encode_hex(proto.r)
+    tx.s = encode_hex(proto.s)
+    return tx
+
+class Client:
+    def __init__(self, api: str, key: str):
+        self.api = api
+        self.key = key
+        self.metadata = (('x-api-key', self.key),)
+    
+    def connect(self):
+        channel = grpc.insecure_channel(self.api)
+        self.stub = api_pb2_grpc.APIStub(channel)
+    
+    def subscribe_new_txs(self):
+        return map(lambda proto: proto_to_tx(proto), self.stub.SubscribeNewTxs(api_pb2.TxFilter(), metadata=self.metadata))
+
+    def subscribe_new_blocks(self):
+        return self.stub.SubscribeNewBlocks(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata)

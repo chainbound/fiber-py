@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "fiber-py"
+version = "0.1.0"
+description = "Python client for connecting to the Fiber API"
+authors = ["Jonas Bostoen <jonas.bostoen@hotmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "fiber" }]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+grpcio = "^1.51.3"
+grpcio-tools = "^1.51.3"
+eth-typing = "^3.2.0"
+eth-utils = "^2.1.0"
+pytest = "^7.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
