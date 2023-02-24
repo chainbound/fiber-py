@@ -65,3 +65,24 @@ except Exception as e:
   print("error subscribing", e)
 ```
 
+**Block Type**
+We export our own transaction type. All the bytes fields are encoded as hexadecimal strings.
+```python
+class Block:
+    hash: str
+    number: int
+    parent_hash: str
+    timestamp: int
+    producer: str
+    base_fee_per_gas: int
+    extra_data: str
+    fee_recipient: str
+    gas_limit: int
+    gas_used: int
+    logs_bloom: str
+    prev_randao: str
+    receipt_root: str
+    state_root: str
+    transactions: list[Transaction]
+```
+
