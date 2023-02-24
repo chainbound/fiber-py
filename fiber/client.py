@@ -31,7 +31,7 @@ class Transaction:
 def proto_to_tx(proto: eth_pb2.Transaction):
     v = proto.v
     if proto.type > 0:
-        if v > 38:
+        if v > 1:
             v = v - 37
     else:
         if v > 28:
