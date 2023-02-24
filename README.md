@@ -66,7 +66,7 @@ except Exception as e:
 ```
 
 **Block Type**
-We export our own transaction type. All the bytes fields are encoded as hexadecimal strings.
+We export our own block type. All the bytes fields are encoded as hexadecimal strings.
 ```python
 class Block:
     hash: str
@@ -85,4 +85,18 @@ class Block:
     state_root: str
     transactions: list[Transaction]
 ```
+
+### Subscribing to headers
+```python
+try:
+  sub = client.subscribe_new_headers()
+
+  for header in sub:
+    do_something(header)
+except Exception as e:
+  print("error subscribing", e)
+```
+
+**Header Type**
+We export our own header type, which is identical to the block type seen above minus the transactions field. All the bytes fields are encoded as hexadecimal strings.
 
