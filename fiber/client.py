@@ -33,9 +33,6 @@ def proto_to_tx(proto: eth_pb2.Transaction):
     if proto.type > 0:
         if v > 1:
             v = v - 37
-    else:
-        if v > 28:
-            v = v - 10
 
     tx = Transaction()
     tx.chain_id = proto.chainId
@@ -45,6 +42,7 @@ def proto_to_tx(proto: eth_pb2.Transaction):
     tx.value = big_endian_to_int(proto.value)
     tx.sender = encode_hex(getattr(proto, "from"))
     tx.type = proto.type
+    tx.gas = proto.gas
     tx.gas_price = proto.gas_price
     tx.max_fee = proto.max_fee
     tx.priority_fee = proto.priority_fee
