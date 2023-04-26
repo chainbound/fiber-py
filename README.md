@@ -1,6 +1,10 @@
 # `fiber-py`
 
 ## Installation
+With pip:
+```
+pip install git+https://github.com/chainbound/fiber-py
+```
 With Poetry:
 ```
 poetry add git+https://github.com/chainbound/fiber-py
