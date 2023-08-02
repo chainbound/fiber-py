@@ -59,20 +59,24 @@ class Transaction:
 ```
 
 ### Subscribing to blocks
+
+#### Execution Payload Headers (no transactions)
+
 ```python
 try:
-  sub = client.subscribe_new_blocks()
+  sub = client.subscribe_new_execution_payload_headers()
 
-  for block in sub:
-    do_something(block)
+  for header in sub:
+    do_something(header)
 except Exception as e:
   print("error subscribing", e)
 ```
 
-**Block Type**
-We export our own block type. All the bytes fields are encoded as hexadecimal strings.
+**Header Type**
+We export our own payload header type. All the bytes fields are encoded as hexadecimal strings.
+
 ```python
-class Block:
+class ExecutionPayloadHeader:
     hash: str
     number: int
     parent_hash: str
@@ -83,24 +87,45 @@ class Block:
     fee_recipient: str
     gas_limit: int
     gas_used: int
-    logs_bloom: str
-    prev_randao: str
-    receipt_root: str
-    state_root: str
-    transactions: list[Transaction]
+    logs_bloom: bytes
+    prev_randao: bytes
+    receipt_root: bytes
+    state_root: bytes
 ```
 
-### Subscribing to headers
+#### Execution Payloads (full blocks + transactions)
+
 ```python
 try:
-  sub = client.subscribe_new_headers()
+  sub = client.subscribe_new_execution_payloads()
 
-  for header in sub:
-    do_something(header)
+  for block in sub:
+    do_something(block)
 except Exception as e:
   print("error subscribing", e)
 ```
 
-**Header Type**
-We export our own header type, which is identical to the block type seen above minus the transactions field. All the bytes fields are encoded as hexadecimal strings.
+**Payload Type**
+We export our own payload type, which extends the header type above.
 
+```python
+class ExecutionPayload:
+    header: ExecutionPayloadHeader
+    transactions: list[Transaction]
+```
+
+#### Beacon Blocks
+
+```python
+try:
+  sub = client.subscribe_new_beacon_blocks()
+
+  for block in sub:
+    do_something(block)
+except Exception as e:
+  print("error subscribing", e)
+```
+
+**Beacon Block Type**
+For now, we don't export a custom BeaconBlock type, but you can rely on the protobuf definition
+found in [`fiber/eth_pb2.pyi`](./fiber/eth_pb2.pyi). Feel free to open an issue or feature request if you need a custom type.
