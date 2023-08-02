@@ -36,6 +36,39 @@ except Exception as e:
   print("error subscribing", e)
 ```
 
+### Filtering
+The first argument to `subscribe_new_txs` is a filter, which can be empty if you want to get all transactions. A filter can be built with the filter package
+```python
+try:
+  # Construct filter
+  # example 1: all transactions with either of these addresses as the receiver
+  f = filter.Filter(
+          filter.filter_or([filter.filter_to("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"), filter.filter_to("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")])
+  )
+
+  # example 2: all ERC20 transfers on the 2 tokens below
+    f = filter.Filter(filter.filter_and(
+        filter.method_id("0xa9059cbb"),
+        filter.filter_or(
+            filter.filter_to("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+            filter.filter_to("0xdAC17F958D2ee523a2206206994597C13D831ec7"),
+        ),
+    ))
+  
+  sub = client.subscribe_new_txs(f)
+
+  # Iterate over transaction stream
+  for tx in sub:
+    do_something(tx)
+except Exception as e:
+  print("error subscribing", e)
+```
+You can currently filter the following properties
+* To
+* From
+* MethodID
+* Value (greater than)
+
 **Transaction type**:
 We export our own transaction type. All the bytes fields are encoded as hexadecimal strings.
 ```python
