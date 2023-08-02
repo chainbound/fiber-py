@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import fiber.api_pb2 as api__pb2
-import fiber.eth_pb2 as eth__pb2
+import api_pb2 as api__pb2
+import eth_pb2 as eth__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
@@ -41,10 +41,20 @@ class APIStub(object):
                 request_serializer=api__pb2.RawTxSequenceMsg.SerializeToString,
                 response_deserializer=api__pb2.TxSequenceResponse.FromString,
                 )
-        self.SubscribeNewBlocks = channel.unary_stream(
-                '/api.API/SubscribeNewBlocks',
+        self.SubscribeExecutionPayloads = channel.unary_stream(
+                '/api.API/SubscribeExecutionPayloads',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=eth__pb2.Block.FromString,
+                response_deserializer=eth__pb2.ExecutionPayload.FromString,
+                )
+        self.SubscribeExecutionHeaders = channel.unary_stream(
+                '/api.API/SubscribeExecutionHeaders',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=eth__pb2.ExecutionPayloadHeader.FromString,
+                )
+        self.SubscribeBeaconBlocks = channel.unary_stream(
+                '/api.API/SubscribeBeaconBlocks',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=eth__pb2.CompactBeaconBlock.FromString,
                 )
 
 
@@ -86,8 +96,23 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SubscribeNewBlocks(self, request, context):
-        """Opens a new block stream.
+    def SubscribeExecutionPayloads(self, request, context):
+        """Opens a stream of new execution payloads.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeExecutionHeaders(self, request, context):
+        """Opens a stream of new execution payload headers.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeBeaconBlocks(self, request, context):
+        """Opens a stream of new beacon blocks. The beacon blocks are "compacted", meaning that the
+        execution payload is not included.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -121,10 +146,20 @@ def add_APIServicer_to_server(servicer, server):
                     request_deserializer=api__pb2.RawTxSequenceMsg.FromString,
                     response_serializer=api__pb2.TxSequenceResponse.SerializeToString,
             ),
-            'SubscribeNewBlocks': grpc.unary_stream_rpc_method_handler(
-                    servicer.SubscribeNewBlocks,
+            'SubscribeExecutionPayloads': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeExecutionPayloads,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=eth__pb2.Block.SerializeToString,
+                    response_serializer=eth__pb2.ExecutionPayload.SerializeToString,
+            ),
+            'SubscribeExecutionHeaders': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeExecutionHeaders,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=eth__pb2.ExecutionPayloadHeader.SerializeToString,
+            ),
+            'SubscribeBeaconBlocks': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeBeaconBlocks,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=eth__pb2.CompactBeaconBlock.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -222,7 +257,7 @@ class API(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def SubscribeNewBlocks(request,
+    def SubscribeExecutionPayloads(request,
             target,
             options=(),
             channel_credentials=None,
@@ -232,8 +267,42 @@ class API(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeNewBlocks',
+        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeExecutionPayloads',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            eth__pb2.Block.FromString,
+            eth__pb2.ExecutionPayload.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SubscribeExecutionHeaders(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeExecutionHeaders',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            eth__pb2.ExecutionPayloadHeader.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SubscribeBeaconBlocks(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeBeaconBlocks',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            eth__pb2.CompactBeaconBlock.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

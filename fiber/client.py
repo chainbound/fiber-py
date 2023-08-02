@@ -53,61 +53,6 @@ def proto_to_tx(proto: eth_pb2.Transaction):
     tx.s = encode_hex(proto.s)
     return tx
 
-class Block:
-    hash: str
-    number: int
-    parent_hash: str
-    timestamp: int
-    producer: str
-    base_fee_per_gas: int
-    extra_data: str
-    fee_recipient: str
-    gas_limit: int
-    gas_used: int
-    logs_bloom: bytes
-    prev_randao: bytes
-    receipt_root: bytes
-    state_root: bytes
-    transactions: list[Transaction]
-
-    def __repr__(self):
-        return str(self.__dict__)
-    
-def proto_to_block(proto: eth_pb2.Block):
-    block = Block()
-    block.hash = encode_hex(proto.hash)
-    block.number = proto.number
-    block.parent_hash = encode_hex(proto.parent_hash)
-    block.timestamp = proto.timestamp
-    block.base_fee_per_gas = proto.base_fee_per_gas
-    block.extra_data = encode_hex(proto.extra_data)
-    block.fee_recipient = encode_hex(proto.fee_recipient)
-    block.gas_limit = proto.gas_limit
-    block.gas_used = proto.gas_used
-    block.logs_bloom = proto.logs_bloom
-    block.prev_randao = proto.prev_randao
-    block.receipt_root = proto.receipt_root
-    block.state_root = proto.state_root
-    block.transactions = list(map(lambda proto: proto_to_tx(proto), proto.transactions))
-    return block
-
-def proto_to_header(proto: eth_pb2.Block):
-    block = Block()
-    block.hash = encode_hex(proto.hash)
-    block.number = proto.number
-    block.parent_hash = encode_hex(proto.parent_hash)
-    block.timestamp = proto.timestamp
-    block.base_fee_per_gas = proto.base_fee_per_gas
-    block.extra_data = encode_hex(proto.extra_data)
-    block.fee_recipient = encode_hex(proto.fee_recipient)
-    block.gas_limit = proto.gas_limit
-    block.gas_used = proto.gas_used
-    block.logs_bloom = encode_hex(proto.logs_bloom)
-    block.prev_randao = encode_hex(proto.prev_randao)
-    block.receipt_root = encode_hex(proto.receipt_root)
-    block.state_root = encode_hex(proto.state_root)
-    return block
-
 def tx_to_proto(tx: Transaction):
     proto = eth_pb2.Transaction()
     proto.chainId = tx.chain_id
@@ -126,6 +71,56 @@ def tx_to_proto(tx: Transaction):
     proto.s = bytes.fromhex(tx.s)
     return proto
 
+class ExecutionPayloadHeader:
+    hash: str
+    number: int
+    parent_hash: str
+    timestamp: int
+    producer: str
+    base_fee_per_gas: int
+    extra_data: str
+    fee_recipient: str
+    gas_limit: int
+    gas_used: int
+    logs_bloom: bytes
+    prev_randao: bytes
+    receipt_root: bytes
+    state_root: bytes
+
+    def __repr__(self):
+        return str(self.__dict__)
+    
+class ExecutionPayload:
+    header: ExecutionPayloadHeader
+    transactions: list[Transaction]
+
+def proto_to_execution_payload_header(proto: eth_pb2.ExecutionPayloadHeader):
+    header = ExecutionPayloadHeader()
+    header.hash = encode_hex(proto.hash)
+    header.number = proto.number
+    header.parent_hash = encode_hex(proto.parent_hash)
+    header.timestamp = proto.timestamp
+    header.base_fee_per_gas = proto.base_fee_per_gas
+    header.extra_data = encode_hex(proto.extra_data)
+    header.fee_recipient = encode_hex(proto.fee_recipient)
+    header.gas_limit = proto.gas_limit
+    header.gas_used = proto.gas_used
+    header.logs_bloom = encode_hex(proto.logs_bloom)
+    header.prev_randao = encode_hex(proto.prev_randao)
+    header.receipt_root = encode_hex(proto.receipt_root)
+    header.state_root = encode_hex(proto.state_root)
+    return header
+
+def proto_to_execution_payload(proto: eth_pb2.ExecutionPayload):
+    payload = ExecutionPayload()
+    payload.header = proto_to_execution_payload_header(proto.header)
+    payload.transactions = list(map(lambda proto: proto_to_tx(proto), proto.transactions))
+    return payload
+
+def proto_to_beacon_block(proto: eth_pb2.BeaconBlock):
+    # TODO: implement custom BeaconBlock class
+    return proto
+
 class Client:
     def __init__(self, api: str, key: str):
         self.api = api
@@ -139,11 +134,14 @@ class Client:
     def subscribe_new_txs(self):
         return map(lambda proto: proto_to_tx(proto), self.stub.SubscribeNewTxs(api_pb2.TxFilter(), metadata=self.metadata))
 
-    def subscribe_new_blocks(self):
-        return map(lambda proto: proto_to_block(proto), self.stub.SubscribeNewBlocks(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata))
+    def subscribe_new_execution_headers(self):
+        return map(lambda proto: proto_to_execution_payload_header(proto), self.stub.SubscribeExecutionHeaders(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata))
+    
+    def subscribe_new_execution_payloads(self):
+        return map(lambda proto: proto_to_execution_payload(proto), self.stub.SubscribeExecutionPayloads(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata))
 
-    def subscribe_new_headers(self):
-        return map(lambda proto: proto_to_header(proto), self.stub.SubscribeNewHeaders(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata))
+    def subscribe_new_beacon_blocks(self):
+        return map(lambda proto: proto_to_beacon_block(proto), self.stub.SubscribeBeaconBlocks(api_pb2.google_dot_protobuf_dot_empty__pb2.Empty(), metadata=self.metadata))
     
     def send_transaction(self, tx: Transaction):
         res = self.stub.SendTransaction(tx_to_proto(tx), metadata=self.metadata)
