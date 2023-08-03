@@ -127,5 +127,6 @@ except Exception as e:
 ```
 
 **Beacon Block Type**
-For now, we don't export a custom BeaconBlock type, but you can rely on the protobuf definition
-found in [`fiber/eth_pb2.pyi`](./fiber/eth_pb2.pyi). Feel free to open an issue or feature request if you need a custom type.
+We export our own BeaconBlock type which you can use to access all the fields of a beacon block in a type-safe way.
+All the bytes fields are encoded as hexadecimal strings.
+

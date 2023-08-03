@@ -1,25 +1,26 @@
 from eth_utils import encode_hex, big_endian_to_int
 from typing import Any, List, Optional
+from eth_typing import HexStr
 
 from fiber.proto import eth_pb2
 
 # ================= TRANSACTION =================
 
 class Transaction:
-    to: str
+    to: HexStr
     gas: int
-    hash: str
+    hash: HexStr
     nonce: int
     value: int
-    sender: str
+    sender: HexStr
     type: int
     gas_price: int
-    input: str
+    input: HexStr
     max_fee: int
     priority_fee: int
     v: int
-    r: str
-    s: str
+    r: HexStr
+    s: HexStr
     access_list: Any
     chain_id: int
 
@@ -72,20 +73,20 @@ def tx_to_proto(tx: Transaction):
 # ================= EXECUTION PAYLOAD =================
 
 class ExecutionPayloadHeader:
-    hash: str
+    hash: HexStr
     number: int
-    parent_hash: str
+    parent_hash: HexStr
     timestamp: int
-    producer: str
+    producer: HexStr
     base_fee_per_gas: int
-    extra_data: str
-    fee_recipient: str
+    extra_data: HexStr
+    fee_recipient: HexStr
     gas_limit: int
     gas_used: int
-    logs_bloom: bytes
-    prev_randao: bytes
-    receipt_root: bytes
-    state_root: bytes
+    logs_bloom: HexStr
+    prev_randao: HexStr
+    receipt_root: HexStr
+    state_root: HexStr
 
     def __repr__(self):
         return str(self.__dict__)
@@ -121,19 +122,19 @@ def proto_to_execution_payload(proto: eth_pb2.ExecutionPayload):
 
 class Checkpoint:
     epoch: int
-    root: bytes
+    root: HexStr
 
 class AttestationData:
     slot: int
     index: int
-    beacon_block_root: bytes
+    beacon_block_root: HexStr
     source: Optional[Checkpoint]
     target: Optional[Checkpoint]
 
 class IndexedAttestation:
     attesting_indices_list: List[int]
     data: Optional[AttestationData]
-    signature: bytes
+    signature: HexStr
 
 class AttesterSlashing:
     attestation1: Optional[IndexedAttestation]
@@ -142,45 +143,45 @@ class AttesterSlashing:
 class BeaconBlockHeader:
     slot: int
     proposer_index: int
-    parent_root: bytes
-    state_root: bytes
-    body_root: bytes
+    parent_root: HexStr
+    state_root: HexStr
+    body_root: HexStr
 
 class SignedBeaconBlockHeader:
     message: Optional[BeaconBlockHeader]
-    signature: bytes
+    signature: HexStr
 
 class ProposerSlashing:
     header1: Optional[SignedBeaconBlockHeader]
     header2: Optional[SignedBeaconBlockHeader]
 
 class DepositData:
-    pubkey: bytes
-    withdrawal_credentials: bytes
+    pubkey: HexStr
+    withdrawal_credentials: HexStr
     amount: int
-    signature: bytes
+    signature: HexStr
 
 class Deposit:
-    proof_list: List[bytes]
+    proof_list: List[HexStr]
     data: Optional[DepositData]
 
 class ExecutionChangeMessage:
     validator_index: int
-    from_bls_pubkey: bytes
-    to_execution_address: bytes
+    from_bls_pubkey: HexStr
+    to_execution_address: HexStr
 
 class ExecutionChange:
     message: ExecutionChangeMessage
-    signature: bytes
+    signature: HexStr
 
 class Eth1Data:
-    deposit_root: bytes
+    deposit_root: HexStr
     deposit_count: int
-    block_hash: bytes
+    block_hash: HexStr
 
 class SyncAggregate:
-    sync_committee_bits: bytes
-    sync_committee_signature: bytes
+    sync_committee_bits: HexStr
+    sync_committee_signature: HexStr
 
 class VoluntaryExit:
     epoch: int
@@ -188,12 +189,12 @@ class VoluntaryExit:
 
 class SignedVoluntaryExit:
     message: VoluntaryExit
-    signature: bytes
+    signature: HexStr
 
 class BeaconBlockBody:
-    randao_reveal: bytes
+    randao_reveal: HexStr
     eth1_data: Eth1Data
-    graffiti: bytes
+    graffiti: HexStr
     proposer_slashings: List[ProposerSlashing]
     attester_slashings: List[AttesterSlashing]
     attestations: List[IndexedAttestation]
@@ -205,8 +206,8 @@ class BeaconBlockBody:
 class BeaconBlock:
     slot: int
     proposer_index: int
-    parent_root: bytes
-    state_root: bytes
+    parent_root: HexStr
+    state_root: HexStr
     body: BeaconBlockBody
 
 
@@ -216,16 +217,16 @@ def proto_to_beacon_block(block: eth_pb2.BeaconBlock):
     beacon = BeaconBlock()
     beacon.slot = block.slot
     beacon.proposer_index = block.proposer_index
-    beacon.parent_root = block.parent_root
-    beacon.state_root = block.state_root
+    beacon.parent_root = encode_hex(block.parent_root)
+    beacon.state_root = encode_hex(block.state_root)
     beacon.body = {
-        "randao_reveal": body.randao_reveal,
+        "randao_reveal": encode_hex(body.randao_reveal),
         "eth1_data": {
-            "deposit_root": body.eth1_data.deposit_root,
+            "deposit_root": encode_hex(body.eth1_data.deposit_root),
             "deposit_count": body.eth1_data.deposit_count,
-            "block_hash": body.eth1_data.block_hash
+            "block_hash": encode_hex(body.eth1_data.block_hash)
         },
-        "graffiti": body.graffiti,
+        "graffiti": encode_hex(body.graffiti),
         "proposer_slashings": list(map(lambda proto: proto_to_proposer_slashing(proto), body.proposer_slashings)),
         "attester_slashings": list(map(lambda proto: proto_to_attester_slashing(proto), body.attester_slashings)),
         "attestations": list(map(lambda proto: proto_to_indexed_attestation(proto), body.attestations)),
@@ -256,14 +257,14 @@ def proto_to_indexed_attestation(proto: eth_pb2.IndexedAttestation):
     attestation = IndexedAttestation()
     attestation.attesting_indices_list = proto.attesting_indices_list
     attestation.data = proto_to_attestation_data(proto.data)
-    attestation.signature = proto.signature
+    attestation.signature = encode_hex(proto.signature)
     return attestation
 
 def proto_to_attestation_data(proto: eth_pb2.AttestationData):
     data = AttestationData()
     data.slot = proto.slot
     data.index = proto.index
-    data.beacon_block_root = proto.beacon_block_root
+    data.beacon_block_root = encode_hex(proto.beacon_block_root)
     data.source = proto_to_checkpoint(proto.source)
     data.target = proto_to_checkpoint(proto.target)
     return data
@@ -271,42 +272,42 @@ def proto_to_attestation_data(proto: eth_pb2.AttestationData):
 def proto_to_checkpoint(proto: eth_pb2.Checkpoint):
     checkpoint = Checkpoint()
     checkpoint.epoch = proto.epoch
-    checkpoint.root = proto.root
+    checkpoint.root = encode_hex(proto.root)
     return checkpoint
 
 def proto_to_signed_beacon_block_header(proto: eth_pb2.SignedBeaconBlockHeader):
     header = SignedBeaconBlockHeader()
     header.message = proto_to_beacon_block_header(proto.message)
-    header.signature = proto.signature
+    header.signature = encode_hex(proto.signature)
     return header
 
 def proto_to_beacon_block_header(proto: eth_pb2.BeaconBlockHeader):
     header = BeaconBlockHeader()
     header.slot = proto.slot
     header.proposer_index = proto.proposer_index
-    header.parent_root = proto.parent_root
-    header.state_root = proto.state_root
-    header.body_root = proto.body_root
+    header.parent_root = encode_hex(proto.parent_root)
+    header.state_root = encode_hex(proto.state_root)
+    header.body_root = encode_hex(proto.body_root)
     return header
 
 def proto_to_deposit(proto: eth_pb2.Deposit):
     deposit = Deposit()
-    deposit.proof_list = proto.proof_list
+    deposit.proof_list = list(map(lambda proof: encode_hex(proof), proto.proof_list))
     deposit.data = proto_to_deposit_data(proto.data)
     return deposit
 
 def proto_to_deposit_data(proto: eth_pb2.DepositData):
     data = DepositData()
-    data.pubkey = proto.pubkey
-    data.withdrawal_credentials = proto.withdrawal_credentials
+    data.pubkey = encode_hex(proto.pubkey)
+    data.withdrawal_credentials = encode_hex(proto.withdrawal_credentials)
     data.amount = proto.amount
-    data.signature = proto.signature
+    data.signature = encode_hex(proto.signature)
     return data
 
 def proto_to_voluntary_exit(proto: eth_pb2.SignedVoluntaryExit):
     exit = SignedVoluntaryExit()
     exit.message = proto_to_voluntary_exit_message(proto.message)
-    exit.signature = proto.signature
+    exit.signature = encode_hex(proto.signature)
     return exit
 
 def proto_to_voluntary_exit_message(proto: eth_pb2.VoluntaryExit):
@@ -315,15 +316,15 @@ def proto_to_voluntary_exit_message(proto: eth_pb2.VoluntaryExit):
     exit.validator_index = proto.validator_index
     return exit
 
-def proto_to_execution_change(proto: eth_pb2.ExecutionChange):
+def proto_to_execution_change(proto: eth_pb2.SignedBLSToExecutionChange):
     change = ExecutionChange()
     change.message = proto_to_execution_change_message(proto.message)
-    change.signature = proto.signature
+    change.signature = encode_hex(proto.signature)
     return change
 
-def proto_to_execution_change_message(proto: eth_pb2.ExecutionChangeMessage):
+def proto_to_execution_change_message(proto: eth_pb2.BLSToExecutionChange):
     change = ExecutionChangeMessage()
     change.validator_index = proto.validator_index
-    change.from_bls_pubkey = proto.from_bls_pubkey
-    change.to_execution_address = proto.to_execution_address
+    change.from_bls_pubkey = encode_hex(proto.from_bls_pubkey)
+    change.to_execution_address = encode_hex(proto.to_execution_address)
     return change
