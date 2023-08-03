@@ -20,7 +20,7 @@ class Client:
         return map(lambda proto: proto_to_tx(proto), 
                    self.stub.SubscribeNewTxs(api_pb2.TxFilter(), metadata=self.metadata))
 
-    def subscribe_new_execution_headers(self):
+    def subscribe_new_execution_payload_headers(self):
         return map(lambda proto: proto_to_execution_payload_header(proto), 
                    self.stub.SubscribeExecutionHeaders(empty, metadata=self.metadata))
     
