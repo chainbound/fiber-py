@@ -7,27 +7,11 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class BackrunMsg(_message.Message):
-    __slots__ = ["hash", "tx"]
-    HASH_FIELD_NUMBER: _ClassVar[int]
-    TX_FIELD_NUMBER: _ClassVar[int]
-    hash: str
-    tx: _eth_pb2.Transaction
-    def __init__(self, hash: _Optional[str] = ..., tx: _Optional[_Union[_eth_pb2.Transaction, _Mapping]] = ...) -> None: ...
-
 class BlockFilter(_message.Message):
     __slots__ = ["producer"]
     PRODUCER_FIELD_NUMBER: _ClassVar[int]
     producer: str
     def __init__(self, producer: _Optional[str] = ...) -> None: ...
-
-class RawBackrunMsg(_message.Message):
-    __slots__ = ["hash", "rawTx"]
-    HASH_FIELD_NUMBER: _ClassVar[int]
-    RAWTX_FIELD_NUMBER: _ClassVar[int]
-    hash: str
-    rawTx: bytes
-    def __init__(self, hash: _Optional[str] = ..., rawTx: _Optional[bytes] = ...) -> None: ...
 
 class RawTxMsg(_message.Message):
     __slots__ = ["rawTx"]
