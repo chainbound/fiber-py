@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import api_pb2 as api__pb2
-import eth_pb2 as eth__pb2
+from fiber.proto import api_pb2 as api__pb2
+from fiber.proto import eth_pb2 as eth__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 

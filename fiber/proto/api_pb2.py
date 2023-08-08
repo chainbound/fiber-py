@@ -11,7 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import eth_pb2 as eth__pb2
+from .eth_pb2 import *
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
