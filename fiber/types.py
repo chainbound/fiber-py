@@ -191,13 +191,18 @@ class SignedVoluntaryExit:
     message: VoluntaryExit
     signature: HexStr
 
+class Attestation:
+    aggregation_bits: HexStr
+    data: AttestationData
+    signature: HexStr
+
 class BeaconBlockBody:
     randao_reveal: HexStr
     eth1_data: Eth1Data
     graffiti: HexStr
     proposer_slashings: List[ProposerSlashing]
     attester_slashings: List[AttesterSlashing]
-    attestations: List[IndexedAttestation]
+    attestations: List[Attestation]
     deposits: List[Deposit]
     voluntary_exits: List[SignedVoluntaryExit]
     sync_aggregate: SyncAggregate
@@ -212,6 +217,7 @@ class BeaconBlock:
 
 
 def proto_to_beacon_block(block: eth_pb2.BeaconBlock):
+    # print(block.body.attester_slashings)
     body = block.body
 
     beacon = BeaconBlock()
@@ -229,7 +235,7 @@ def proto_to_beacon_block(block: eth_pb2.BeaconBlock):
         "graffiti": encode_hex(body.graffiti),
         "proposer_slashings": list(map(lambda proto: proto_to_proposer_slashing(proto), body.proposer_slashings)),
         "attester_slashings": list(map(lambda proto: proto_to_attester_slashing(proto), body.attester_slashings)),
-        "attestations": list(map(lambda proto: proto_to_indexed_attestation(proto), body.attestations)),
+        "attestations": list(map(lambda proto: proto_to_attestation(proto), body.attestations)),
         "deposits": list(map(lambda proto: proto_to_deposit(proto), body.deposits)),
         "voluntary_exits": list(map(lambda proto: proto_to_voluntary_exit(proto), body.voluntary_exits)),
         "bls_to_execution_changes": list(map(lambda proto: proto_to_execution_change(proto), body.bls_to_execution_changes)),
@@ -255,10 +261,16 @@ def proto_to_attester_slashing(proto: eth_pb2.AttesterSlashing):
 
 def proto_to_indexed_attestation(proto: eth_pb2.IndexedAttestation):
     attestation = IndexedAttestation()
-    attestation.attesting_indices_list = proto.attesting_indices_list
+    attestation.attesting_indices_list = proto.attesting_indices
     attestation.data = proto_to_attestation_data(proto.data)
     attestation.signature = encode_hex(proto.signature)
     return attestation
+
+def proto_to_attestation(proto: eth_pb2.Attestation):
+    attestation = Attestation
+    attestation.aggregation_bits = encode_hex(proto.aggregation_bits)
+    attestation.data = proto_to_attestation_data(proto.data)
+    attestation.signature: encode_hex(proto.signature)
 
 def proto_to_attestation_data(proto: eth_pb2.AttestationData):
     data = AttestationData()
@@ -292,7 +304,7 @@ def proto_to_beacon_block_header(proto: eth_pb2.BeaconBlockHeader):
 
 def proto_to_deposit(proto: eth_pb2.Deposit):
     deposit = Deposit()
-    deposit.proof_list = list(map(lambda proof: encode_hex(proof), proto.proof_list))
+    deposit.proof_list = list(map(lambda proof: encode_hex(proof), proto.proof))
     deposit.data = proto_to_deposit_data(proto.data)
     return deposit
 
