@@ -1,19 +1,25 @@
 # `fiber-py`
 
 ## Installation
+
 With pip:
+
 ```
 pip install git+https://github.com/chainbound/fiber-py
 ```
+
 With Poetry:
+
 ```
 poetry add git+https://github.com/chainbound/fiber-py
 ```
 
 ## Usage
+
 ### Connecting
+
 ```python
-from fiber.client import Client 
+from fiber.client import Client
 
 client = Client('FIBER_ENDPOINT', 'YOUR_API_KEY')
 try:
@@ -23,8 +29,11 @@ except Exception as e:
 ```
 
 ### Subscribing to transactions
-The transaction stream is supported but without any filtering for now. `subscribe_new_txs`
-returns a stream of `fiber.client.Transaction`, shown below.
+
+The transaction stream is supported but without any filtering for now.
+This stream yields [`fiber.client.Transaction`](/fiber/types.py#L9) objects.
+All the bytes fields are encoded as hexadecimal strings.
+
 ```python
 try:
   sub = client.subscribe_new_txs()
@@ -36,31 +45,12 @@ except Exception as e:
   print("error subscribing", e)
 ```
 
-**Transaction type**:
-We export our own transaction type. All the bytes fields are encoded as hexadecimal strings.
-```python
-class Transaction:
-  to: str
-  gas: int
-  hash: str
-  nonce: int
-  value: int
-  sender: str
-  type: int
-  gas_price: int
-  input: str
-  max_fee: int
-  priority_fee: int
-  v: int
-  r: str
-  s: str
-  access_list: Any
-  chain_id: int
-```
-
 ### Subscribing to blocks
 
-#### Execution Payload Headers (no transactions)
+#### Execution Payload Headers
+
+This stream yields only the new block headers as [`ExecutionPayloadHeader`](/fiber/types.py#L75) objects.
+All the bytes fields are encoded as hexadecimal strings.
 
 ```python
 try:
@@ -72,28 +62,10 @@ except Exception as e:
   print("error subscribing", e)
 ```
 
-**Header Type**
-We export our own payload header type. All the bytes fields are encoded as hexadecimal strings.
+#### Execution Payloads
 
-```python
-class ExecutionPayloadHeader:
-    hash: str
-    number: int
-    parent_hash: str
-    timestamp: int
-    producer: str
-    base_fee_per_gas: int
-    extra_data: str
-    fee_recipient: str
-    gas_limit: int
-    gas_used: int
-    logs_bloom: bytes
-    prev_randao: bytes
-    receipt_root: bytes
-    state_root: bytes
-```
-
-#### Execution Payloads (full blocks + transactions)
+This stream yields the new blocks as full [`ExecutionPayload`](/fiber/types.py#L94) objects.
+All the bytes fields are encoded as hexadecimal strings.
 
 ```python
 try:
@@ -105,16 +77,12 @@ except Exception as e:
   print("error subscribing", e)
 ```
 
-**Payload Type**
-We export our own payload type, which extends the header type above.
-
-```python
-class ExecutionPayload:
-    header: ExecutionPayloadHeader
-    transactions: list[Transaction]
-```
-
 #### Beacon Blocks
+
+This stream yields the blocks as seen by the Ethereum consensus layer, in the form of [`BeaconBlock`](/fiber/types.py#L211) objects. All the bytes fields are encoded as hexadecimal strings.
+
+> **Note**
+> Beacon blocks **do not** contain the execution payloads. To also get the execution payloads, please subscribe to the execution payload stream `subscribe_new_execution_payloads()` separately.
 
 ```python
 try:
@@ -125,8 +93,3 @@ try:
 except Exception as e:
   print("error subscribing", e)
 ```
-
-**Beacon Block Type**
-We export our own BeaconBlock type which you can use to access all the fields of a beacon block in a type-safe way.
-All the bytes fields are encoded as hexadecimal strings.
-
