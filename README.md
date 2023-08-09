@@ -31,7 +31,7 @@ except Exception as e:
 ### Subscribing to transactions
 
 The transaction stream is supported but without any filtering for now.
-This stream yields [`fiber.client.Transaction`](/fiber/types.py#L9) objects.
+This stream yields [`fiber.types.Transaction`](/fiber/types.py#L9) objects.
 All the bytes fields are encoded as hexadecimal strings.
 
 ```python
@@ -49,7 +49,7 @@ except Exception as e:
 
 #### Execution Payload Headers
 
-This stream yields only the new block headers as [`ExecutionPayloadHeader`](/fiber/types.py#L75) objects.
+This stream yields only the new block headers as [`fiber.types.ExecutionPayloadHeader`](/fiber/types.py#L75) objects.
 All the bytes fields are encoded as hexadecimal strings.
 
 ```python
@@ -64,7 +64,7 @@ except Exception as e:
 
 #### Execution Payloads
 
-This stream yields the new blocks as full [`ExecutionPayload`](/fiber/types.py#L94) objects.
+This stream yields the new blocks as full [`fiber.types.ExecutionPayload`](/fiber/types.py#L94) objects.
 All the bytes fields are encoded as hexadecimal strings.
 
 ```python
@@ -79,7 +79,7 @@ except Exception as e:
 
 #### Beacon Blocks
 
-This stream yields the blocks as seen by the Ethereum consensus layer, in the form of [`BeaconBlock`](/fiber/types.py#L211) objects. All the bytes fields are encoded as hexadecimal strings.
+This stream yields the blocks as seen by the Ethereum consensus layer, in the form of [`fiber.types.BeaconBlock`](/fiber/types.py#L211) objects. All the bytes fields are encoded as hexadecimal strings.
 
 > **Note**
 > Beacon blocks **do not** contain the execution payloads. To also get the execution payloads, please subscribe to the execution payload stream `subscribe_new_execution_payloads()` separately.
