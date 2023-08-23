@@ -97,7 +97,7 @@ class ExecutionPayload:
 
 def proto_to_execution_payload_header(proto: eth_pb2.ExecutionPayloadHeader):
     header = ExecutionPayloadHeader()
-    header.hash = encode_hex(proto.hash)
+    header.hash = encode_hex(proto.block_hash)
     header.number = proto.number
     header.parent_hash = encode_hex(proto.parent_hash)
     header.timestamp = proto.timestamp
@@ -108,7 +108,7 @@ def proto_to_execution_payload_header(proto: eth_pb2.ExecutionPayloadHeader):
     header.gas_used = proto.gas_used
     header.logs_bloom = encode_hex(proto.logs_bloom)
     header.prev_randao = encode_hex(proto.prev_randao)
-    header.receipt_root = encode_hex(proto.receipt_root)
+    header.receipt_root = encode_hex(proto.receipts_root)
     header.state_root = encode_hex(proto.state_root)
     return header
 
@@ -249,14 +249,14 @@ def proto_to_beacon_block(block: eth_pb2.BeaconBlock):
 
 def proto_to_proposer_slashing(proto: eth_pb2.ProposerSlashing):
     slashing = ProposerSlashing()
-    slashing.header1 = proto_to_signed_beacon_block_header(proto.header1)
-    slashing.header2 = proto_to_signed_beacon_block_header(proto.header2)
+    slashing.header1 = proto_to_signed_beacon_block_header(proto.header_1)
+    slashing.header2 = proto_to_signed_beacon_block_header(proto.header_2)
     return slashing
 
 def proto_to_attester_slashing(proto: eth_pb2.AttesterSlashing):
     slashing = AttesterSlashing()
-    slashing.attestation1 = proto_to_indexed_attestation(proto.attestation1)
-    slashing.attestation2 = proto_to_indexed_attestation(proto.attestation2)
+    slashing.attestation1 = proto_to_indexed_attestation(proto.attestation_1)
+    slashing.attestation2 = proto_to_indexed_attestation(proto.attestation_2)
     return slashing
 
 def proto_to_indexed_attestation(proto: eth_pb2.IndexedAttestation):
