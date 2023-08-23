@@ -1,9 +1,26 @@
-from eth_utils import encode_hex, big_endian_to_int
-from typing import Any, List, Optional
+from eth_utils import encode_hex, big_endian_to_int, to_bytes
+from typing import Any, List, Optional, Tuple
 from eth_typing import HexStr
 
-from fiber.proto import eth_pb2
 import fiber.rlp as rlp
+from fiber.proto import eth_pb2
+from ethereum.base_types import (
+    U64,
+    U256,
+    Bytes0,
+    Bytes20,
+    Bytes32,
+    Uint
+)
+
+def hex_to_bytes(data: str) -> bytes:
+    return to_bytes(hexstr=HexStr(data))
+
+def hex_to_int(data: str) -> int:
+    return int(data[2:], 16)
+
+def acl_to_tuple(acl: eth_pb2.AccessTuple) -> Tuple[Tuple[Bytes20, Tuple[Bytes32, ...]], ...]:
+    return tuple(map(lambda tup: (hex_to_bytes(tup.address), tuple(map(lambda bytes: hex_to_bytes(bytes), tup.storage_keys))), acl))
 
 # ================= TRANSACTION =================
 
@@ -33,65 +50,68 @@ class Transaction:
             if self.chain_id is None:
                 # parse as legacy tx pre-EIP155
                 serializable_tx = rlp.LegacyTransaction(
-                    nonce=self.nonce,
-                    gas_price=self.gas_price,
-                    gas=self.gas,
-                    to=self.to,
-                    value=self.value,
-                    data=self.data,
-                    v=self.v,
-                    r=self.r,
-                    s=self.s,
+                    nonce=U64(self.nonce),
+                    gas_price=Uint(self.gas_price),
+                    gas=Uint(self.gas),
+                    to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                    value=U256(self.value),
+                    data=hex_to_bytes(self.input),
+                    v=U256(self.v),
+                    r=U256(hex_to_int(self.r)), 
+                    s=U256(hex_to_int(self.s)),
                 )
             else:
-                # parse as legacy self post-EIP155
-                # TODO: check why chain_id is missing from this
+                # parse as legacy tx post-EIP155
+                # TODO: check why `chain_id` is missing from this
                 serializable_tx = rlp.LegacyTransaction(
-                    nonce=self.nonce,
-                    gas_price=self.gas_price,
-                    gas=self.gas,
-                    to=self.to,
-                    value=self.value,
-                    data=self.data,
-                    v=self.v,
-                    r=self.r,
-                    s=self.s,
+                    nonce=U64(self.nonce),
+                    gas_price=Uint(self.gas_price),
+                    gas=Uint(self.gas),
+                    to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                    value=U256(self.value),
+                    data=hex_to_bytes(self.input),
+                    v=U256(self.v),
+                    r=U256(hex_to_int(self.r)),
+                    s=U256(hex_to_int(self.s)),
                 )
 
         elif self.type == 1:
-            # parse as access list self
+            # parse as access list tx
             serializable_tx = rlp.AccessListTransaction(
-                chain_id=self.chain_id,
-                nonce=self.nonce,
-                gas_price=self.gas_price,
-                gas=self.gas,
-                to=self.to,
-                value=self.value,
-                data=self.data,
-                access_list=self.access_list,
-                v=self.v,
-                r=self.r,
-                s=self.s,
+                chain_id=U64(self.chain_id),
+                nonce=U256(self.nonce),
+                gas_price=Uint(self.gas_price),
+                gas=Uint(self.gas),
+                to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                value=U256(self.value),
+                data=hex_to_bytes(self.input),
+                access_list=acl_to_tuple(self.access_list),
+                v=U256(self.v),
+                r=U256(hex_to_int(self.r)),
+                s=U256(hex_to_int(self.s)),
             )
 
         elif self.type == 2:
-            # parse as fee market self
+            # parse as fee market tx
             serializable_tx = rlp.FeeMarketTransaction(
-                chain_id=self.chain_id,
-                nonce=self.nonce,
-                max_priority_fee_per_gas=self.max_priority_fee_per_gas,
-                max_fee_per_gas=self.max_fee_per_gas,
-                gas=self.gas,
-                to=self.to,
-                value=self.value,
-                data=self.data,
-                access_list=self.access_list,
-                v=self.v,
-                r=self.r,
-                s=self.s,
+                chain_id=U64(self.chain_id),
+                nonce=U256(self.nonce),
+                max_priority_fee_per_gas=Uint(self.priority_fee),
+                max_fee_per_gas=Uint(self.max_fee),
+                gas=Uint(self.gas),
+                to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                value=U256(self.value),
+                data=hex_to_bytes(self.input),
+                access_list=acl_to_tuple(self.access_list),
+                v=U256(self.v),
+                r=U256(hex_to_int(self.r)),
+                s=U256(hex_to_int(self.s)),
             )
 
         return rlp.encode_transaction(serializable_tx)
+    
+    def to_rlp_hex(self) -> str:
+        return encode_hex(self.to_rlp_bytes())
 
 def proto_to_tx(proto: eth_pb2.Transaction) -> Transaction:
     v = proto.v

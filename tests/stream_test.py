@@ -28,7 +28,7 @@ class StreamTest(unittest.TestCase):
 
       i = 0
       for tx in sub:
-        print(tx)
+        print(tx.hash, tx.__dict__, "\n")
 
         i += 1
         if i == 10:
