@@ -98,7 +98,7 @@ class ExecutionPayload:
 def proto_to_execution_payload_header(proto: eth_pb2.ExecutionPayloadHeader):
     header = ExecutionPayloadHeader()
     header.hash = encode_hex(proto.block_hash)
-    header.number = proto.number
+    header.number = proto.block_number
     header.parent_hash = encode_hex(proto.parent_hash)
     header.timestamp = proto.timestamp
     header.base_fee_per_gas = proto.base_fee_per_gas
