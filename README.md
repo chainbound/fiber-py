@@ -45,6 +45,10 @@ except Exception as e:
   print("error subscribing", e)
 ```
 
+> **Note**
+> You can also get the RLP-encoded signed transaction with the methods `tx.to_rlp_bytes()` and `tx.to_rlp_hex()`
+> to get the raw bytes or the hex string respectively.
+
 ### Subscribing to blocks
 
 #### Execution Payload Headers

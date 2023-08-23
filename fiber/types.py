@@ -1,8 +1,26 @@
-from eth_utils import encode_hex, big_endian_to_int
-from typing import Any, List, Optional
+from eth_utils import encode_hex, big_endian_to_int, to_bytes
+from typing import Any, List, Optional, Tuple
 from eth_typing import HexStr
 
+import fiber.rlp as rlp
 from fiber.proto import eth_pb2
+from ethereum.base_types import (
+    U64,
+    U256,
+    Bytes0,
+    Bytes20,
+    Bytes32,
+    Uint
+)
+
+def hex_to_bytes(data: str) -> bytes:
+    return to_bytes(hexstr=HexStr(data))
+
+def hex_to_int(data: str) -> int:
+    return int(data[2:], 16)
+
+def acl_to_tuple(acl: eth_pb2.AccessTuple) -> Tuple[Tuple[Bytes20, Tuple[Bytes32, ...]], ...]:
+    return tuple(map(lambda tup: (hex_to_bytes(tup.address), tuple(map(lambda bytes: hex_to_bytes(bytes), tup.storage_keys))), acl))
 
 # ================= TRANSACTION =================
 
@@ -26,8 +44,76 @@ class Transaction:
 
     def __repr__(self):
         return str(self.__dict__)
+    
+    def to_rlp_bytes(self) -> bytes:
+        if self.type == 0:
+            if self.chain_id is None:
+                # parse as legacy tx pre-EIP155
+                serializable_tx = rlp.LegacyTransaction(
+                    nonce=U64(self.nonce),
+                    gas_price=Uint(self.gas_price),
+                    gas=Uint(self.gas),
+                    to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                    value=U256(self.value),
+                    data=hex_to_bytes(self.input),
+                    v=U256(self.v),
+                    r=U256(hex_to_int(self.r)), 
+                    s=U256(hex_to_int(self.s)),
+                )
+            else:
+                # parse as legacy tx post-EIP155
+                # TODO: check why `chain_id` is missing from this
+                serializable_tx = rlp.LegacyTransaction(
+                    nonce=U64(self.nonce),
+                    gas_price=Uint(self.gas_price),
+                    gas=Uint(self.gas),
+                    to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                    value=U256(self.value),
+                    data=hex_to_bytes(self.input),
+                    v=U256(self.v),
+                    r=U256(hex_to_int(self.r)),
+                    s=U256(hex_to_int(self.s)),
+                )
 
-def proto_to_tx(proto: eth_pb2.Transaction):
+        elif self.type == 1:
+            # parse as access list tx
+            serializable_tx = rlp.AccessListTransaction(
+                chain_id=U64(self.chain_id),
+                nonce=U256(self.nonce),
+                gas_price=Uint(self.gas_price),
+                gas=Uint(self.gas),
+                to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                value=U256(self.value),
+                data=hex_to_bytes(self.input),
+                access_list=acl_to_tuple(self.access_list),
+                v=U256(self.v),
+                r=U256(hex_to_int(self.r)),
+                s=U256(hex_to_int(self.s)),
+            )
+
+        elif self.type == 2:
+            # parse as fee market tx
+            serializable_tx = rlp.FeeMarketTransaction(
+                chain_id=U64(self.chain_id),
+                nonce=U256(self.nonce),
+                max_priority_fee_per_gas=Uint(self.priority_fee),
+                max_fee_per_gas=Uint(self.max_fee),
+                gas=Uint(self.gas),
+                to=Bytes0(hex_to_bytes(self.to)) if self.to == "0x" else Bytes20(hex_to_bytes(self.to)),
+                value=U256(self.value),
+                data=hex_to_bytes(self.input),
+                access_list=acl_to_tuple(self.access_list),
+                v=U256(self.v),
+                r=U256(hex_to_int(self.r)),
+                s=U256(hex_to_int(self.s)),
+            )
+
+        return rlp.encode_transaction(serializable_tx)
+    
+    def to_rlp_hex(self) -> str:
+        return encode_hex(self.to_rlp_bytes())
+
+def proto_to_tx(proto: eth_pb2.Transaction) -> Transaction:
     v = proto.v
     if proto.type > 0:
         if v > 1:
@@ -52,7 +138,7 @@ def proto_to_tx(proto: eth_pb2.Transaction):
     tx.s = encode_hex(proto.s)
     return tx
 
-def tx_to_proto(tx: Transaction):
+def tx_to_proto(tx: Transaction) -> eth_pb2.Transaction:
     proto = eth_pb2.Transaction()
     proto.chainId = tx.chain_id
     proto.to = bytes.fromhex(tx.to)
@@ -95,7 +181,7 @@ class ExecutionPayload:
     header: ExecutionPayloadHeader
     transactions: list[Transaction]
 
-def proto_to_execution_payload_header(proto: eth_pb2.ExecutionPayloadHeader):
+def proto_to_execution_payload_header(proto: eth_pb2.ExecutionPayloadHeader) -> ExecutionPayloadHeader:
     header = ExecutionPayloadHeader()
     header.hash = encode_hex(proto.block_hash)
     header.number = proto.block_number
@@ -112,7 +198,7 @@ def proto_to_execution_payload_header(proto: eth_pb2.ExecutionPayloadHeader):
     header.state_root = encode_hex(proto.state_root)
     return header
 
-def proto_to_execution_payload(proto: eth_pb2.ExecutionPayload):
+def proto_to_execution_payload(proto: eth_pb2.ExecutionPayload) -> ExecutionPayload:
     payload = ExecutionPayload()
     payload.header = proto_to_execution_payload_header(proto.header)
     payload.transactions = list(map(lambda proto: proto_to_tx(proto), proto.transactions))
@@ -216,8 +302,7 @@ class BeaconBlock:
     body: BeaconBlockBody
 
 
-def proto_to_beacon_block(block: eth_pb2.BeaconBlock):
-    # print(block.body.attester_slashings)
+def proto_to_beacon_block(block: eth_pb2.BeaconBlock) -> BeaconBlock:
     body = block.body
 
     beacon = BeaconBlock()
@@ -247,33 +332,33 @@ def proto_to_beacon_block(block: eth_pb2.BeaconBlock):
 
     return beacon
 
-def proto_to_proposer_slashing(proto: eth_pb2.ProposerSlashing):
+def proto_to_proposer_slashing(proto: eth_pb2.ProposerSlashing) -> ProposerSlashing:
     slashing = ProposerSlashing()
     slashing.header1 = proto_to_signed_beacon_block_header(proto.header_1)
     slashing.header2 = proto_to_signed_beacon_block_header(proto.header_2)
     return slashing
 
-def proto_to_attester_slashing(proto: eth_pb2.AttesterSlashing):
+def proto_to_attester_slashing(proto: eth_pb2.AttesterSlashing) -> AttesterSlashing:
     slashing = AttesterSlashing()
     slashing.attestation1 = proto_to_indexed_attestation(proto.attestation_1)
     slashing.attestation2 = proto_to_indexed_attestation(proto.attestation_2)
     return slashing
 
-def proto_to_indexed_attestation(proto: eth_pb2.IndexedAttestation):
+def proto_to_indexed_attestation(proto: eth_pb2.IndexedAttestation) -> IndexedAttestation:
     attestation = IndexedAttestation()
     attestation.attesting_indices_list = proto.attesting_indices
     attestation.data = proto_to_attestation_data(proto.data)
     attestation.signature = encode_hex(proto.signature)
     return attestation
 
-def proto_to_attestation(proto: eth_pb2.Attestation):
+def proto_to_attestation(proto: eth_pb2.Attestation) -> Attestation:
     attestation = Attestation
     attestation.aggregation_bits = encode_hex(proto.aggregation_bits)
     attestation.data = proto_to_attestation_data(proto.data)
     attestation.signature: encode_hex(proto.signature)
     return attestation
 
-def proto_to_attestation_data(proto: eth_pb2.AttestationData):
+def proto_to_attestation_data(proto: eth_pb2.AttestationData) -> AttestationData:
     data = AttestationData()
     data.slot = proto.slot
     data.index = proto.index
@@ -282,19 +367,19 @@ def proto_to_attestation_data(proto: eth_pb2.AttestationData):
     data.target = proto_to_checkpoint(proto.target)
     return data
 
-def proto_to_checkpoint(proto: eth_pb2.Checkpoint):
+def proto_to_checkpoint(proto: eth_pb2.Checkpoint) -> Checkpoint:
     checkpoint = Checkpoint()
     checkpoint.epoch = proto.epoch
     checkpoint.root = encode_hex(proto.root)
     return checkpoint
 
-def proto_to_signed_beacon_block_header(proto: eth_pb2.SignedBeaconBlockHeader):
+def proto_to_signed_beacon_block_header(proto: eth_pb2.SignedBeaconBlockHeader) -> SignedBeaconBlockHeader:
     header = SignedBeaconBlockHeader()
     header.message = proto_to_beacon_block_header(proto.message)
     header.signature = encode_hex(proto.signature)
     return header
 
-def proto_to_beacon_block_header(proto: eth_pb2.BeaconBlockHeader):
+def proto_to_beacon_block_header(proto: eth_pb2.BeaconBlockHeader) -> BeaconBlockHeader:
     header = BeaconBlockHeader()
     header.slot = proto.slot
     header.proposer_index = proto.proposer_index
@@ -303,13 +388,13 @@ def proto_to_beacon_block_header(proto: eth_pb2.BeaconBlockHeader):
     header.body_root = encode_hex(proto.body_root)
     return header
 
-def proto_to_deposit(proto: eth_pb2.Deposit):
+def proto_to_deposit(proto: eth_pb2.Deposit) -> Deposit:
     deposit = Deposit()
     deposit.proof_list = list(map(lambda proof: encode_hex(proof), proto.proof))
     deposit.data = proto_to_deposit_data(proto.data)
     return deposit
 
-def proto_to_deposit_data(proto: eth_pb2.DepositData):
+def proto_to_deposit_data(proto: eth_pb2.DepositData) -> DepositData:
     data = DepositData()
     data.pubkey = encode_hex(proto.pubkey)
     data.withdrawal_credentials = encode_hex(proto.withdrawal_credentials)
@@ -317,25 +402,25 @@ def proto_to_deposit_data(proto: eth_pb2.DepositData):
     data.signature = encode_hex(proto.signature)
     return data
 
-def proto_to_voluntary_exit(proto: eth_pb2.SignedVoluntaryExit):
+def proto_to_voluntary_exit(proto: eth_pb2.SignedVoluntaryExit) -> SignedVoluntaryExit:
     exit = SignedVoluntaryExit()
     exit.message = proto_to_voluntary_exit_message(proto.message)
     exit.signature = encode_hex(proto.signature)
     return exit
 
-def proto_to_voluntary_exit_message(proto: eth_pb2.VoluntaryExit):
+def proto_to_voluntary_exit_message(proto: eth_pb2.VoluntaryExit) -> VoluntaryExit:
     exit = VoluntaryExit()
     exit.epoch = proto.epoch
     exit.validator_index = proto.validator_index
     return exit
 
-def proto_to_execution_change(proto: eth_pb2.SignedBLSToExecutionChange):
+def proto_to_execution_change(proto: eth_pb2.SignedBLSToExecutionChange) -> ExecutionChange:
     change = ExecutionChange()
     change.message = proto_to_execution_change_message(proto.message)
     change.signature = encode_hex(proto.signature)
     return change
 
-def proto_to_execution_change_message(proto: eth_pb2.BLSToExecutionChange):
+def proto_to_execution_change_message(proto: eth_pb2.BLSToExecutionChange) -> ExecutionChangeMessage:
     change = ExecutionChangeMessage()
     change.validator_index = proto.validator_index
     change.from_bls_pubkey = encode_hex(proto.from_bls_pubkey)
