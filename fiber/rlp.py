@@ -3,8 +3,8 @@ from typing import Tuple, Union
 from eth_utils import to_bytes
 from eth_typing import HexStr
 
-from ethereum.rlp import decode_to, encode
-from ethereum.base_types import (
+from fiber.ethereum.rlp import decode_to, encode
+from fiber.ethereum.base_types import (
     U64,
     U256,
     Bytes,

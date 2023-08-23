@@ -23,7 +23,7 @@ from .crypto_hash import Hash32, keccak256
 from .exceptions import RLPDecodingError, RLPEncodingError
 from .utils_ensure import ensure
 
-from ethereum.base_types import Bytes, Bytes0, Bytes20, FixedBytes, FixedUInt, Uint
+from fiber.ethereum.base_types import Bytes, Bytes0, Bytes20, FixedBytes, FixedUInt, Uint
 
 RLP = Any
 

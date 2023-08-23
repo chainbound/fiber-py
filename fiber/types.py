@@ -4,7 +4,7 @@ from eth_typing import HexStr
 
 import fiber.rlp as rlp
 from fiber.proto import eth_pb2
-from ethereum.base_types import (
+from fiber.ethereum.base_types import (
     U64,
     U256,
     Bytes0,
