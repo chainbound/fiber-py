@@ -20,7 +20,8 @@ def hex_to_int(data: str) -> int:
     return int(data[2:], 16)
 
 def acl_to_tuple(acl: eth_pb2.AccessTuple) -> Tuple[Tuple[Bytes20, Tuple[Bytes32, ...]], ...]:
-    return tuple(map(lambda tup: (hex_to_bytes(tup.address), tuple(map(lambda bytes: hex_to_bytes(bytes), tup.storage_keys))), acl))
+    return tuple(map(lambda tup: (tup.address, tuple(map(lambda bytes_: bytes_, tup.storage_keys))), acl))
+
 
 # ================= TRANSACTION =================
 
