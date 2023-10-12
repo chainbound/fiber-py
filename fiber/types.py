@@ -125,7 +125,12 @@ def proto_to_tx(proto: eth_pb2.Transaction) -> Transaction:
     tx.to = encode_hex(proto.to)
     tx.hash = encode_hex(proto.hash)
     tx.nonce = proto.nonce
-    tx.value = big_endian_to_int(proto.value)
+    
+    if proto.value == b'':
+        tx.value = 0
+    else:
+        tx.value = rlp.decode_to(U256, proto.value)
+        
     tx.sender = encode_hex(getattr(proto, "from"))
     tx.type = proto.type
     tx.gas = proto.gas
