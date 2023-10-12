@@ -30,7 +30,7 @@ class StreamTest(unittest.TestCase):
       for tx in sub:
         print(tx.hash)
         # optionally print the RLP-encoded transaction hex:
-        # print(tx.to_rlp_hex(), "\n")
+        print(tx.to_rlp_hex(), "\n")
 
         i += 1
         if i == 10:
