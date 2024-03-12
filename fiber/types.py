@@ -119,12 +119,35 @@ def rlp_to_tx(rlp_tx: bytes) -> Transaction:
         decoded_tx, "max_fee_per_blob_gas") else 0
 
     tx.input = bytes_to_hex(decoded_tx.data)
-    tx.access_list = decoded_tx.access_list
+    tx.access_list = decoded_tx.access_list if hasattr(
+        decoded_tx, "access_list") else []
     tx.v = v
     tx.r = decoded_tx.r
     tx.s = decoded_tx.s
 
     return tx
+
+
+def tx_to_proto(tx: Transaction) -> eth_pb2.Transaction:
+    """
+    WARNING: does not work with tx type 3
+    """
+    proto = eth_pb2.Transaction()
+    proto.chainId = tx.chain_id
+    proto.to = bytes.fromhex(tx.to)
+    proto.hash = bytes.fromhex(tx.hash)
+    proto.nonce = tx.nonce
+    proto.value = tx.value.to_bytes(32, 'big')
+    proto.type = tx.type
+    proto.gas_price = tx.gas_price
+    proto.max_fee = tx.max_fee
+    proto.priority_fee = tx.priority_fee
+    proto.input = bytes.fromhex(tx.input)
+    proto.access_list = tx.access_list
+    proto.v = tx.v
+    proto.r = bytes.fromhex(tx.r)
+    proto.s = bytes.fromhex(tx.s)
+    return proto
 
 # ================= EXECUTION PAYLOAD =================
 

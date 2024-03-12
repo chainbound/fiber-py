@@ -17,10 +17,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 key = os.getenv("FIBER_TEST_KEY")
-client = Client("beta.fiberapi.io:8080", key or "")
+client = Client("beta.fiberapi.io:8080", key)
 
 
 class StreamTest(unittest.TestCase):
+
     def test_tx_stream(self):
         try:
             client.connect()

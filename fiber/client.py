@@ -28,9 +28,12 @@ class Client:
         self.stub = api_pb2_grpc.APIStub(channel)
 
     def subscribe_new_txs(self):
-        (lambda raw: proto_to_tx(raw),)
-        self.stub.SubscribeNewTxsV2(
-            api_pb2.TxFilter(),
+        return map(
+            lambda raw: proto_to_tx(raw),
+            self.stub.SubscribeNewTxsV2(
+                api_pb2.TxFilter(),
+                metadata=self.metadata,
+            )
         )
 
     def subscribe_new_raw_txs(self):
@@ -46,7 +49,8 @@ class Client:
 
         return map(
             lambda proto: (proto.sender, proto.rlp_transaction),
-            self.stub.SubscribeNewTxsV2(api_pb2.TxFilter(), metadata=self.metadata),
+            self.stub.SubscribeNewTxsV2(
+                api_pb2.TxFilter(), metadata=self.metadata),
         )
 
     # def subscribe_new_execution_payloads(self):
@@ -78,7 +82,8 @@ class Client:
         )
 
     def send_transaction(self, tx: Transaction):
-        res = self.stub.SendTransaction(tx_to_proto(tx), metadata=self.metadata)
+        res = self.stub.SendTransaction(
+            tx_to_proto(tx), metadata=self.metadata)
         return res.hash, res.timestamp
 
     def send_transaction_sequence(self, txs: list[Transaction]):
@@ -88,7 +93,8 @@ class Client:
         ].timestamp
 
     def send_raw_transaction(self, tx: bytes):
-        res = self.stub.SendRawTransaction(tx_to_proto(tx), metadata=self.metadata)
+        res = self.stub.SendRawTransaction(
+            tx_to_proto(tx), metadata=self.metadata)
         return res.hash, res.timestamp
 
     def send_raw_transaction_sequence(self, txs: list[bytes]):
