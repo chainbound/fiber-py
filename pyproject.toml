@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fiber-py"
-version = "0.2.0"
+version = "0.3.0"
 description = "Python client for connecting to the Fiber API"
 authors = ["Jonas Bostoen <jonas.bostoen@hotmail.com>"]
 license = "MIT"
