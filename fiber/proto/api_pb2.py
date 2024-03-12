@@ -11,11 +11,11 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from .eth_pb2 import *
+from fiber.proto import eth_pb2 as eth__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tapi.proto\x12\x03\x61pi\x1a\teth.proto\x1a\x1bgoogle/protobuf/empty.proto\"3\n\rTxSequenceMsg\x12\"\n\x08sequence\x18\x01 \x03(\x0b\x32\x10.eth.Transaction\"#\n\x10RawTxSequenceMsg\x12\x0f\n\x07raw_txs\x18\x01 \x03(\x0c\"I\n\x12TxSequenceResponse\x12\x33\n\x11sequence_response\x18\x01 \x03(\x0b\x32\x18.api.TransactionResponse\"\x1b\n\x08TxFilter\x12\x0f\n\x07\x65ncoded\x18\x01 \x01(\x0c\"\x1f\n\x0b\x42lockFilter\x12\x10\n\x08producer\x18\x01 \x01(\t\"\x19\n\x08RawTxMsg\x12\r\n\x05rawTx\x18\x01 \x01(\x0c\"6\n\x13TransactionResponse\x12\x0c\n\x04hash\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x03\x32\xde\x04\n\x03\x41PI\x12\x36\n\x0fSubscribeNewTxs\x12\r.api.TxFilter\x1a\x10.eth.Transaction\"\x00\x30\x01\x12\x43\n\x0fSendTransaction\x12\x10.eth.Transaction\x1a\x18.api.TransactionResponse\"\x00(\x01\x30\x01\x12\x43\n\x12SendRawTransaction\x12\r.api.RawTxMsg\x1a\x18.api.TransactionResponse\"\x00(\x01\x30\x01\x12L\n\x17SendTransactionSequence\x12\x12.api.TxSequenceMsg\x1a\x17.api.TxSequenceResponse\"\x00(\x01\x30\x01\x12R\n\x1aSendRawTransactionSequence\x12\x15.api.RawTxSequenceMsg\x1a\x17.api.TxSequenceResponse\"\x00(\x01\x30\x01\x12O\n\x1aSubscribeExecutionPayloads\x12\x16.google.protobuf.Empty\x1a\x15.eth.ExecutionPayload\"\x00\x30\x01\x12T\n\x19SubscribeExecutionHeaders\x12\x16.google.protobuf.Empty\x1a\x1b.eth.ExecutionPayloadHeader\"\x00\x30\x01\x12L\n\x15SubscribeBeaconBlocks\x12\x16.google.protobuf.Empty\x1a\x17.eth.CompactBeaconBlock\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tapi.proto\x12\x03\x61pi\x1a\teth.proto\x1a\x1bgoogle/protobuf/empty.proto\"3\n\rTxSequenceMsg\x12\"\n\x08sequence\x18\x01 \x03(\x0b\x32\x10.eth.Transaction\"#\n\x0fTxSequenceMsgV2\x12\x10\n\x08sequence\x18\x01 \x03(\x0c\"#\n\x10RawTxSequenceMsg\x12\x0f\n\x07raw_txs\x18\x01 \x03(\x0c\"I\n\x12TxSequenceResponse\x12\x33\n\x11sequence_response\x18\x01 \x03(\x0b\x32\x18.api.TransactionResponse\"\x1b\n\x08TxFilter\x12\x0f\n\x07\x65ncoded\x18\x01 \x01(\x0c\"\x1f\n\x0b\x42lockFilter\x12\x10\n\x08producer\x18\x01 \x01(\t\"\x19\n\x08RawTxMsg\x12\r\n\x05rawTx\x18\x01 \x01(\x0c\"\'\n\x12\x42lockSubmissionMsg\x12\x11\n\tssz_block\x18\x01 \x01(\x0c\")\n\x0eTransactionMsg\x12\x17\n\x0frlp_transaction\x18\x01 \x01(\x0c\"C\n\x18TransactionWithSenderMsg\x12\x17\n\x0frlp_transaction\x18\x01 \x01(\x0c\x12\x0e\n\x06sender\x18\x02 \x01(\x0c\"@\n\x13\x45xecutionPayloadMsg\x12\x14\n\x0c\x64\x61ta_version\x18\x01 \x01(\r\x12\x13\n\x0bssz_payload\x18\x02 \x01(\x0c\"9\n\x0e\x42\x65\x61\x63onBlockMsg\x12\x14\n\x0c\x64\x61ta_version\x18\x01 \x01(\r\x12\x11\n\tssz_block\x18\x02 \x01(\x0c\"N\n\x17\x42lockSubmissionResponse\x12\x0c\n\x04slot\x18\x01 \x01(\x04\x12\x12\n\nstate_root\x18\x02 \x01(\x0c\x12\x11\n\ttimestamp\x18\x03 \x01(\x04\"6\n\x13TransactionResponse\x12\x0c\n\x04hash\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x03\x32\x87\t\n\x03\x41PI\x12\x36\n\x0fSubscribeNewTxs\x12\r.api.TxFilter\x1a\x10.eth.Transaction\"\x00\x30\x01\x12\x45\n\x11SubscribeNewTxsV2\x12\r.api.TxFilter\x1a\x1d.api.TransactionWithSenderMsg\"\x00\x30\x01\x12P\n\x13SubscribeNewBlobTxs\x12\x16.google.protobuf.Empty\x1a\x1d.api.TransactionWithSenderMsg\"\x00\x30\x01\x12\x43\n\x0fSendTransaction\x12\x10.eth.Transaction\x1a\x18.api.TransactionResponse\"\x00(\x01\x30\x01\x12\x43\n\x12SendRawTransaction\x12\r.api.RawTxMsg\x1a\x18.api.TransactionResponse\"\x00(\x01\x30\x01\x12H\n\x11SendTransactionV2\x12\x13.api.TransactionMsg\x1a\x18.api.TransactionResponse\"\x00(\x01\x30\x01\x12L\n\x17SendTransactionSequence\x12\x12.api.TxSequenceMsg\x1a\x17.api.TxSequenceResponse\"\x00(\x01\x30\x01\x12P\n\x19SendTransactionSequenceV2\x12\x14.api.TxSequenceMsgV2\x1a\x17.api.TxSequenceResponse\"\x00(\x01\x30\x01\x12R\n\x1aSendRawTransactionSequence\x12\x15.api.RawTxSequenceMsg\x1a\x17.api.TxSequenceResponse\"\x00(\x01\x30\x01\x12O\n\x1aSubscribeExecutionPayloads\x12\x16.google.protobuf.Empty\x1a\x15.eth.ExecutionPayload\"\x00\x30\x01\x12T\n\x1cSubscribeExecutionPayloadsV2\x12\x16.google.protobuf.Empty\x1a\x18.api.ExecutionPayloadMsg\"\x00\x30\x01\x12T\n\x19SubscribeExecutionHeaders\x12\x16.google.protobuf.Empty\x1a\x1b.eth.ExecutionPayloadHeader\"\x00\x30\x01\x12L\n\x15SubscribeBeaconBlocks\x12\x16.google.protobuf.Empty\x1a\x17.eth.CompactBeaconBlock\"\x00\x30\x01\x12J\n\x17SubscribeBeaconBlocksV2\x12\x16.google.protobuf.Empty\x1a\x13.api.BeaconBlockMsg\"\x00\x30\x01\x12P\n\x11SubmitBlockStream\x12\x17.api.BlockSubmissionMsg\x1a\x1c.api.BlockSubmissionResponse\"\x00(\x01\x30\x01\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'api_pb2', globals())
@@ -24,18 +24,32 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _TXSEQUENCEMSG._serialized_start=58
   _TXSEQUENCEMSG._serialized_end=109
-  _RAWTXSEQUENCEMSG._serialized_start=111
-  _RAWTXSEQUENCEMSG._serialized_end=146
-  _TXSEQUENCERESPONSE._serialized_start=148
-  _TXSEQUENCERESPONSE._serialized_end=221
-  _TXFILTER._serialized_start=223
-  _TXFILTER._serialized_end=250
-  _BLOCKFILTER._serialized_start=252
-  _BLOCKFILTER._serialized_end=283
-  _RAWTXMSG._serialized_start=285
-  _RAWTXMSG._serialized_end=310
-  _TRANSACTIONRESPONSE._serialized_start=312
-  _TRANSACTIONRESPONSE._serialized_end=366
-  _API._serialized_start=369
-  _API._serialized_end=975
+  _TXSEQUENCEMSGV2._serialized_start=111
+  _TXSEQUENCEMSGV2._serialized_end=146
+  _RAWTXSEQUENCEMSG._serialized_start=148
+  _RAWTXSEQUENCEMSG._serialized_end=183
+  _TXSEQUENCERESPONSE._serialized_start=185
+  _TXSEQUENCERESPONSE._serialized_end=258
+  _TXFILTER._serialized_start=260
+  _TXFILTER._serialized_end=287
+  _BLOCKFILTER._serialized_start=289
+  _BLOCKFILTER._serialized_end=320
+  _RAWTXMSG._serialized_start=322
+  _RAWTXMSG._serialized_end=347
+  _BLOCKSUBMISSIONMSG._serialized_start=349
+  _BLOCKSUBMISSIONMSG._serialized_end=388
+  _TRANSACTIONMSG._serialized_start=390
+  _TRANSACTIONMSG._serialized_end=431
+  _TRANSACTIONWITHSENDERMSG._serialized_start=433
+  _TRANSACTIONWITHSENDERMSG._serialized_end=500
+  _EXECUTIONPAYLOADMSG._serialized_start=502
+  _EXECUTIONPAYLOADMSG._serialized_end=566
+  _BEACONBLOCKMSG._serialized_start=568
+  _BEACONBLOCKMSG._serialized_end=625
+  _BLOCKSUBMISSIONRESPONSE._serialized_start=627
+  _BLOCKSUBMISSIONRESPONSE._serialized_end=705
+  _TRANSACTIONRESPONSE._serialized_start=707
+  _TRANSACTIONRESPONSE._serialized_end=761
+  _API._serialized_start=764
+  _API._serialized_end=1923
 # @@protoc_insertion_point(module_scope)
