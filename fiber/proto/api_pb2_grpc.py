@@ -21,6 +21,16 @@ class APIStub(object):
                 request_serializer=api__pb2.TxFilter.SerializeToString,
                 response_deserializer=eth__pb2.Transaction.FromString,
                 )
+        self.SubscribeNewTxsV2 = channel.unary_stream(
+                '/api.API/SubscribeNewTxsV2',
+                request_serializer=api__pb2.TxFilter.SerializeToString,
+                response_deserializer=api__pb2.TransactionWithSenderMsg.FromString,
+                )
+        self.SubscribeNewBlobTxs = channel.unary_stream(
+                '/api.API/SubscribeNewBlobTxs',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=api__pb2.TransactionWithSenderMsg.FromString,
+                )
         self.SendTransaction = channel.stream_stream(
                 '/api.API/SendTransaction',
                 request_serializer=eth__pb2.Transaction.SerializeToString,
@@ -31,9 +41,19 @@ class APIStub(object):
                 request_serializer=api__pb2.RawTxMsg.SerializeToString,
                 response_deserializer=api__pb2.TransactionResponse.FromString,
                 )
+        self.SendTransactionV2 = channel.stream_stream(
+                '/api.API/SendTransactionV2',
+                request_serializer=api__pb2.TransactionMsg.SerializeToString,
+                response_deserializer=api__pb2.TransactionResponse.FromString,
+                )
         self.SendTransactionSequence = channel.stream_stream(
                 '/api.API/SendTransactionSequence',
                 request_serializer=api__pb2.TxSequenceMsg.SerializeToString,
+                response_deserializer=api__pb2.TxSequenceResponse.FromString,
+                )
+        self.SendTransactionSequenceV2 = channel.stream_stream(
+                '/api.API/SendTransactionSequenceV2',
+                request_serializer=api__pb2.TxSequenceMsgV2.SerializeToString,
                 response_deserializer=api__pb2.TxSequenceResponse.FromString,
                 )
         self.SendRawTransactionSequence = channel.stream_stream(
@@ -46,6 +66,11 @@ class APIStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=eth__pb2.ExecutionPayload.FromString,
                 )
+        self.SubscribeExecutionPayloadsV2 = channel.unary_stream(
+                '/api.API/SubscribeExecutionPayloadsV2',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=api__pb2.ExecutionPayloadMsg.FromString,
+                )
         self.SubscribeExecutionHeaders = channel.unary_stream(
                 '/api.API/SubscribeExecutionHeaders',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -56,6 +81,16 @@ class APIStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=eth__pb2.CompactBeaconBlock.FromString,
                 )
+        self.SubscribeBeaconBlocksV2 = channel.unary_stream(
+                '/api.API/SubscribeBeaconBlocksV2',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=api__pb2.BeaconBlockMsg.FromString,
+                )
+        self.SubmitBlockStream = channel.stream_stream(
+                '/api.API/SubmitBlockStream',
+                request_serializer=api__pb2.BlockSubmissionMsg.SerializeToString,
+                response_deserializer=api__pb2.BlockSubmissionResponse.FromString,
+                )
 
 
 class APIServicer(object):
@@ -63,6 +98,21 @@ class APIServicer(object):
 
     def SubscribeNewTxs(self, request, context):
         """Opens a new transaction stream with the given filter.
+        TODO: Deprecate
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeNewTxsV2(self, request, context):
+        """Opens a new transaction stream with the given filter.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeNewBlobTxs(self, request, context):
+        """Opens a new blob transaction stream with the given filter.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -70,6 +120,7 @@ class APIServicer(object):
 
     def SendTransaction(self, request_iterator, context):
         """Sends a signed transaction to the network.
+        TODO: Deprecate
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -77,14 +128,28 @@ class APIServicer(object):
 
     def SendRawTransaction(self, request_iterator, context):
         """Sends a signed, RLP encoded transaction to the network
+        TODO: Deprecate
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendTransactionV2(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SendTransactionSequence(self, request_iterator, context):
         """Sends a sequence of signed transactions to the network.
+        TODO: Deprecate
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendTransactionSequenceV2(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -98,13 +163,21 @@ class APIServicer(object):
 
     def SubscribeExecutionPayloads(self, request, context):
         """Opens a stream of new execution payloads.
+        TODO: Deprecate
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeExecutionPayloadsV2(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeExecutionHeaders(self, request, context):
         """Opens a stream of new execution payload headers.
+        TODO: Deprecate
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -118,6 +191,22 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SubscribeBeaconBlocksV2(self, request, context):
+        """Opens a stream of new beacon blocks.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubmitBlockStream(self, request_iterator, context):
+        """Opens a bi-directional stream for new block submissions. The client stream is used to send
+        SSZ-encoded beacon blocks, and the server stream is used to send back the state_root, slot and
+        a local timestamp as a confirmation that the block was seen and handled.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_APIServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -125,6 +214,16 @@ def add_APIServicer_to_server(servicer, server):
                     servicer.SubscribeNewTxs,
                     request_deserializer=api__pb2.TxFilter.FromString,
                     response_serializer=eth__pb2.Transaction.SerializeToString,
+            ),
+            'SubscribeNewTxsV2': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeNewTxsV2,
+                    request_deserializer=api__pb2.TxFilter.FromString,
+                    response_serializer=api__pb2.TransactionWithSenderMsg.SerializeToString,
+            ),
+            'SubscribeNewBlobTxs': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeNewBlobTxs,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=api__pb2.TransactionWithSenderMsg.SerializeToString,
             ),
             'SendTransaction': grpc.stream_stream_rpc_method_handler(
                     servicer.SendTransaction,
@@ -136,9 +235,19 @@ def add_APIServicer_to_server(servicer, server):
                     request_deserializer=api__pb2.RawTxMsg.FromString,
                     response_serializer=api__pb2.TransactionResponse.SerializeToString,
             ),
+            'SendTransactionV2': grpc.stream_stream_rpc_method_handler(
+                    servicer.SendTransactionV2,
+                    request_deserializer=api__pb2.TransactionMsg.FromString,
+                    response_serializer=api__pb2.TransactionResponse.SerializeToString,
+            ),
             'SendTransactionSequence': grpc.stream_stream_rpc_method_handler(
                     servicer.SendTransactionSequence,
                     request_deserializer=api__pb2.TxSequenceMsg.FromString,
+                    response_serializer=api__pb2.TxSequenceResponse.SerializeToString,
+            ),
+            'SendTransactionSequenceV2': grpc.stream_stream_rpc_method_handler(
+                    servicer.SendTransactionSequenceV2,
+                    request_deserializer=api__pb2.TxSequenceMsgV2.FromString,
                     response_serializer=api__pb2.TxSequenceResponse.SerializeToString,
             ),
             'SendRawTransactionSequence': grpc.stream_stream_rpc_method_handler(
@@ -151,6 +260,11 @@ def add_APIServicer_to_server(servicer, server):
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=eth__pb2.ExecutionPayload.SerializeToString,
             ),
+            'SubscribeExecutionPayloadsV2': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeExecutionPayloadsV2,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=api__pb2.ExecutionPayloadMsg.SerializeToString,
+            ),
             'SubscribeExecutionHeaders': grpc.unary_stream_rpc_method_handler(
                     servicer.SubscribeExecutionHeaders,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
@@ -160,6 +274,16 @@ def add_APIServicer_to_server(servicer, server):
                     servicer.SubscribeBeaconBlocks,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=eth__pb2.CompactBeaconBlock.SerializeToString,
+            ),
+            'SubscribeBeaconBlocksV2': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeBeaconBlocksV2,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=api__pb2.BeaconBlockMsg.SerializeToString,
+            ),
+            'SubmitBlockStream': grpc.stream_stream_rpc_method_handler(
+                    servicer.SubmitBlockStream,
+                    request_deserializer=api__pb2.BlockSubmissionMsg.FromString,
+                    response_serializer=api__pb2.BlockSubmissionResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -185,6 +309,40 @@ class API(object):
         return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeNewTxs',
             api__pb2.TxFilter.SerializeToString,
             eth__pb2.Transaction.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SubscribeNewTxsV2(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeNewTxsV2',
+            api__pb2.TxFilter.SerializeToString,
+            api__pb2.TransactionWithSenderMsg.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SubscribeNewBlobTxs(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeNewBlobTxs',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            api__pb2.TransactionWithSenderMsg.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -223,6 +381,23 @@ class API(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def SendTransactionV2(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_stream(request_iterator, target, '/api.API/SendTransactionV2',
+            api__pb2.TransactionMsg.SerializeToString,
+            api__pb2.TransactionResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def SendTransactionSequence(request_iterator,
             target,
             options=(),
@@ -235,6 +410,23 @@ class API(object):
             metadata=None):
         return grpc.experimental.stream_stream(request_iterator, target, '/api.API/SendTransactionSequence',
             api__pb2.TxSequenceMsg.SerializeToString,
+            api__pb2.TxSequenceResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SendTransactionSequenceV2(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_stream(request_iterator, target, '/api.API/SendTransactionSequenceV2',
+            api__pb2.TxSequenceMsgV2.SerializeToString,
             api__pb2.TxSequenceResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -274,6 +466,23 @@ class API(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def SubscribeExecutionPayloadsV2(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeExecutionPayloadsV2',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            api__pb2.ExecutionPayloadMsg.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def SubscribeExecutionHeaders(request,
             target,
             options=(),
@@ -304,5 +513,39 @@ class API(object):
         return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeBeaconBlocks',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             eth__pb2.CompactBeaconBlock.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SubscribeBeaconBlocksV2(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/api.API/SubscribeBeaconBlocksV2',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            api__pb2.BeaconBlockMsg.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SubmitBlockStream(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_stream(request_iterator, target, '/api.API/SubmitBlockStream',
+            api__pb2.BlockSubmissionMsg.SerializeToString,
+            api__pb2.BlockSubmissionResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

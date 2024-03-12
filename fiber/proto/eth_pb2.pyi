@@ -1,19 +1,10 @@
 from google.protobuf import empty_pb2 as _empty_pb2
-from .types_pb2 import types_pb2 as _types_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
-
-class AccessListItem(_message.Message):
-    __slots__ = ["address", "slots"]
-    ADDRESS_FIELD_NUMBER: _ClassVar[int]
-    SLOTS_FIELD_NUMBER: _ClassVar[int]
-    address: _types_pb2.H160
-    slots: _containers.RepeatedCompositeFieldContainer[_types_pb2.H256]
-    def __init__(self, address: _Optional[_Union[_types_pb2.H160, _Mapping]] = ..., slots: _Optional[_Iterable[_Union[_types_pb2.H256, _Mapping]]] = ...) -> None: ...
 
 class AccessTuple(_message.Message):
     __slots__ = ["address", "storage_keys"]
@@ -118,34 +109,6 @@ class BeaconBlockHeader(_message.Message):
     slot: int
     state_root: bytes
     def __init__(self, slot: _Optional[int] = ..., proposer_index: _Optional[int] = ..., parent_root: _Optional[bytes] = ..., state_root: _Optional[bytes] = ..., body_root: _Optional[bytes] = ...) -> None: ...
-
-class BlockId(_message.Message):
-    __slots__ = ["hash", "number"]
-    HASH_FIELD_NUMBER: _ClassVar[int]
-    NUMBER_FIELD_NUMBER: _ClassVar[int]
-    hash: _types_pb2.H256
-    number: BlockNumber
-    def __init__(self, hash: _Optional[_Union[_types_pb2.H256, _Mapping]] = ..., number: _Optional[_Union[BlockNumber, _Mapping]] = ...) -> None: ...
-
-class BlockNumber(_message.Message):
-    __slots__ = ["latest", "number", "pending"]
-    LATEST_FIELD_NUMBER: _ClassVar[int]
-    NUMBER_FIELD_NUMBER: _ClassVar[int]
-    PENDING_FIELD_NUMBER: _ClassVar[int]
-    latest: _empty_pb2.Empty
-    number: int
-    pending: _empty_pb2.Empty
-    def __init__(self, latest: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., pending: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., number: _Optional[int] = ...) -> None: ...
-
-class CanonicalTransactionData(_message.Message):
-    __slots__ = ["block_hash", "block_number", "index"]
-    BLOCK_HASH_FIELD_NUMBER: _ClassVar[int]
-    BLOCK_NUMBER_FIELD_NUMBER: _ClassVar[int]
-    INDEX_FIELD_NUMBER: _ClassVar[int]
-    block_hash: _types_pb2.H256
-    block_number: int
-    index: int
-    def __init__(self, block_hash: _Optional[_Union[_types_pb2.H256, _Mapping]] = ..., block_number: _Optional[int] = ..., index: _Optional[int] = ...) -> None: ...
 
 class Checkpoint(_message.Message):
     __slots__ = ["epoch", "root"]
