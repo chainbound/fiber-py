@@ -1,19 +1,12 @@
-from eth_utils import encode_hex, big_endian_to_int, to_bytes
+from eth_utils import encode_hex, to_bytes
 from typing import Any, List, Optional, Tuple
 from eth_typing import HexStr
-from ethereum.crypto_hash import keccak256
 
 import fiber.rlp as rlp
 from fiber.proto import eth_pb2
 from fiber.proto import api_pb2
-from fiber.ethereum.base_types import (
-    U64,
-    U256,
-    Bytes0,
-    Bytes20,
-    Bytes32,
-    Uint
-)
+from fiber.ethereum.crypto_hash import keccak256
+from fiber.ethereum.base_types import (Bytes20, Bytes32)
 
 
 def hex_to_bytes(data: str) -> bytes:
