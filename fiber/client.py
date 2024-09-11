@@ -5,6 +5,7 @@ from fiber.proto import api_pb2_grpc
 from fiber.proto import api_pb2
 from fiber.types import (
     proto_to_tx,
+    rlp_to_tx,
     tx_to_proto,
     Transaction,
 )
@@ -94,7 +95,7 @@ class Client:
 
     def send_raw_transaction(self, tx: bytes):
         res = self.stub.SendRawTransaction(
-            tx_to_proto(tx), metadata=self.metadata)
+            tx_to_proto(rlp_to_tx(tx)), metadata=self.metadata)
         return res.hash, res.timestamp
 
     def send_raw_transaction_sequence(self, txs: list[bytes]):

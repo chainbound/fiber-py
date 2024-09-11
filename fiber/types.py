@@ -370,7 +370,7 @@ def proto_to_attestation(proto: eth_pb2.Attestation) -> Attestation:
     attestation = Attestation
     attestation.aggregation_bits = encode_hex(proto.aggregation_bits)
     attestation.data = proto_to_attestation_data(proto.data)
-    attestation.signature: encode_hex(proto.signature)
+    attestation.signature: encode_hex(proto.signature)  # type: ignore
     return attestation
 
 
