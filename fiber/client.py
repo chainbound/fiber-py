@@ -29,6 +29,17 @@ class Client:
         self.stub = api_pb2_grpc.APIStub(channel)
 
     def subscribe_new_txs(self):
+        """
+        Subscribe to new transactions. This method returns a generator that yields
+        transactions as they are propagated by the network. Example result:
+
+        (sender, transaction) = next(client.subscribe_new_txs())
+
+        sender is the sender's address.
+        transaction is the decoded Transaction object.
+
+        For more info on the Transaction type, see: https://github.com/chainbound/fiber-py/blob/main/fiber/types.py#L30
+        """
         return map(
             lambda raw: proto_to_tx(raw),
             self.stub.SubscribeNewTxsV2(
@@ -76,17 +87,20 @@ class Client:
         (data_version, ssz_block) = next(client.subscribe_new_raw_beacon_blocks())
 
         data_version is the fork number (e.g. 3 for Merge)
+        ssz_block is the raw beacon block encoded with SSZ.
         """
         return map(
             lambda proto: (proto.data_version, proto.ssz_block),
             self.stub.SubscribeBeaconBlocksV2(empty, metadata=self.metadata),
         )
 
+    # WARNING: does not work with tx types 3 and 4
     def send_transaction(self, tx: Transaction):
         res = self.stub.SendTransaction(
             tx_to_proto(tx), metadata=self.metadata)
         return res.hash, res.timestamp
 
+    # WARNING: does not work with tx types 3 and 4
     def send_transaction_sequence(self, txs: list[Transaction]):
         res = self.stub.SendTransactionSequence(txs, metadata=self.metadata)
         return map(lambda sequence_response: sequence_response.hash, res), res[
@@ -94,8 +108,7 @@ class Client:
         ].timestamp
 
     def send_raw_transaction(self, tx: bytes):
-        res = self.stub.SendRawTransaction(
-            tx_to_proto(rlp_to_tx(tx)), metadata=self.metadata)
+        res = self.stub.SendRawTransaction(tx, metadata=self.metadata)
         return res.hash, res.timestamp
 
     def send_raw_transaction_sequence(self, txs: list[bytes]):
