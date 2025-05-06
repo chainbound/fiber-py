@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Tuple, Union
 from eth_utils import to_bytes
 from eth_typing import HexStr
-from enum import Enum
 
 from fiber.ethereum.rlp import decode_to, encode
 from fiber.ethereum.base_types import (
@@ -17,6 +16,12 @@ from fiber.ethereum.base_types import (
 )
 
 Address = Bytes20
+
+# [[address, [storage_key, ...]], ...]
+AccessList = Tuple[Tuple[Address, Tuple[Bytes32, ...]], ...]
+
+# [[chain_id, address, nonce, y_parity, r, s], ...]
+AuthorizationList = Tuple[Tuple[U64, Address, U256, U256, U256, U256], ...]
 
 
 def hex_to_bytes(data: str) -> bytes:
@@ -55,7 +60,7 @@ class AccessListTransaction:
     to: Union[Bytes0, Address]
     value: U256
     data: Bytes
-    access_list: Tuple[Tuple[Address, Tuple[Bytes32, ...]], ...]
+    access_list: AccessList
     v: U256
     r: U256
     s: U256
@@ -76,12 +81,13 @@ class FeeMarketTransaction:
     to: Union[Bytes0, Address]
     value: U256
     data: Bytes
-    access_list: Tuple[Tuple[Address, Tuple[Bytes32, ...]], ...]
+    access_list: AccessList
     v: U256
     r: U256
     s: U256
 
 
+# ref: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-4844.md#blob-transaction
 @slotted_freezable
 @dataclass
 class BlobTransaction:
@@ -97,7 +103,7 @@ class BlobTransaction:
     to: Union[Bytes0, Address]
     value: U256
     data: Bytes
-    access_list: Tuple[Tuple[Address, Tuple[Bytes32, ...]], ...]
+    access_list: AccessList
     max_fee_per_blob_gas: Uint
     blob_versioned_hashes: Tuple[Bytes32, ...]
     v: U256
@@ -105,8 +111,31 @@ class BlobTransaction:
     s: U256
 
 
+# ref: https://eip7702.io/#specification
+@slotted_freezable
+@dataclass
+class AccountAbstractionTransaction:
+    """
+    The transaction type added in EIP-7702.
+    """
+
+    chain_id: U64
+    nonce: U256
+    max_priority_fee_per_gas: Uint
+    max_fee_per_gas: Uint
+    gas: Uint
+    to: Union[Bytes0, Address]
+    value: U256
+    data: Bytes
+    access_list: AccessList
+    authorization_list: AuthorizationList
+    v: U256
+    r: U256
+    s: U256
+
+
 RlpTransaction = Union[
-    LegacyTransaction, AccessListTransaction, FeeMarketTransaction, BlobTransaction
+    LegacyTransaction, AccessListTransaction, FeeMarketTransaction, BlobTransaction, AccountAbstractionTransaction
 ]
 
 
@@ -136,6 +165,8 @@ def decode_raw_transaction(tx: bytes) -> tuple[RlpTransaction, Uint]:
         decoded = decode_to(FeeMarketTransaction, tx[1:])
     elif tx[0] == 3:
         decoded = decode_to(BlobTransaction, tx[1:])
+    elif tx[0] == 4:
+        decoded = decode_to(AccountAbstractionTransaction, tx[1:])
     else:
         decoded = decode_to(LegacyTransaction, tx)
         tx_type = 0

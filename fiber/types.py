@@ -44,8 +44,13 @@ class Transaction:
     s: HexStr
     access_list: Any
     chain_id: int
+
+    # EIP-4844
     blob_versioned_hashes: List[HexStr]
     max_fee_per_blob_gas: int
+
+    # EIP-7702
+    authorization_list: Any
 
     # internal fields
     _rlp_bytes: bytes
@@ -101,6 +106,7 @@ def rlp_to_tx(rlp_tx: bytes) -> Transaction:
     tx.priority_fee = decoded_tx.max_priority_fee_per_gas if hasattr(
         decoded_tx, "max_priority_fee_per_gas") else None
 
+    # EIP-4844
     blob_versioned_hashes = []
     if hasattr(decoded_tx, "blob_versioned_hashes"):
         for hash in decoded_tx.blob_versioned_hashes:
@@ -110,6 +116,10 @@ def rlp_to_tx(rlp_tx: bytes) -> Transaction:
 
     tx.max_fee_per_blob_gas = decoded_tx.max_fee_per_blob_gas if hasattr(
         decoded_tx, "max_fee_per_blob_gas") else 0
+
+    # EIP-7702
+    tx.authorization_list = decoded_tx.authorization_list if hasattr(
+        decoded_tx, "authorization_list") else []
 
     tx.input = bytes_to_hex(decoded_tx.data)
     tx.access_list = decoded_tx.access_list if hasattr(
@@ -123,7 +133,7 @@ def rlp_to_tx(rlp_tx: bytes) -> Transaction:
 
 def tx_to_proto(tx: Transaction) -> eth_pb2.Transaction:
     """
-    WARNING: does not work with tx type 3
+    WARNING: does not work with tx type 3 and 4
     """
     proto = eth_pb2.Transaction()
     proto.chainId = tx.chain_id
